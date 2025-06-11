@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Heart, MessageCircle, MapPin } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,69 +11,72 @@ interface SwipeCardProps {
 }
 
 const SwipeCard = ({ spot, onSwipe }: SwipeCardProps) => {
-  const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
+  const isDragging = useRef(false);
+  const startX = useRef(0);
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true);
-    const startX = e.clientX;
+    isDragging.current = true;
+    startX.current = e.clientX;
+    e.preventDefault();
+  };
 
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging) return;
-      const currentX = e.clientX;
-      const offset = currentX - startX;
-      setDragOffset(offset);
-    };
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging.current) return;
+    const currentX = e.clientX;
+    const offset = currentX - startX.current;
+    setDragOffset(offset);
+  };
 
-    const handleMouseUp = () => {
-      setIsDragging(false);
-      
-      if (Math.abs(dragOffset) > 100) {
-        onSwipe(dragOffset > 0 ? 'right' : 'left');
-      }
-      
-      setDragOffset(0);
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
+  const handleMouseUp = () => {
+    if (!isDragging.current) return;
+    
+    if (Math.abs(dragOffset) > 100) {
+      onSwipe(dragOffset > 0 ? 'right' : 'left');
+    }
+    
+    isDragging.current = false;
+    setDragOffset(0);
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    const startX = e.touches[0].clientX;
+    isDragging.current = true;
+    startX.current = e.touches[0].clientX;
+  };
 
-    const handleTouchMove = (e: TouchEvent) => {
-      const currentX = e.touches[0].clientX;
-      const offset = currentX - startX;
-      setDragOffset(offset);
-    };
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging.current) return;
+    const currentX = e.touches[0].clientX;
+    const offset = currentX - startX.current;
+    setDragOffset(offset);
+  };
 
-    const handleTouchEnd = () => {
-      if (Math.abs(dragOffset) > 100) {
-        onSwipe(dragOffset > 0 ? 'right' : 'left');
-      }
-      
-      setDragOffset(0);
-      document.removeEventListener('touchmove', handleTouchMove);
-      document.removeEventListener('touchend', handleTouchEnd);
-    };
-
-    document.addEventListener('touchmove', handleTouchMove);
-    document.addEventListener('touchend', handleTouchEnd);
+  const handleTouchEnd = () => {
+    if (!isDragging.current) return;
+    
+    if (Math.abs(dragOffset) > 100) {
+      onSwipe(dragOffset > 0 ? 'right' : 'left');
+    }
+    
+    isDragging.current = false;
+    setDragOffset(0);
   };
 
   return (
     <Card 
-      className={`w-full max-w-sm mx-auto swipe-card cursor-grab active:cursor-grabbing relative overflow-hidden modern-card border-0 shadow-xl rounded-3xl ${
+      className={`w-full max-w-sm mx-auto swipe-card cursor-grab active:cursor-grabbing relative overflow-hidden modern-card border-0 shadow-xl rounded-3xl transition-transform duration-200 select-none ${
         dragOffset > 50 ? 'bg-green-50' : dragOffset < -50 ? 'bg-red-50' : ''
       }`}
       style={{
         transform: `translateX(${dragOffset}px) rotate(${dragOffset * 0.1}deg)`,
       }}
       onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
       onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
       {/* Like/Dislike Indicators */}
       {dragOffset > 50 && (
@@ -93,7 +96,8 @@ const SwipeCard = ({ spot, onSwipe }: SwipeCardProps) => {
         <img 
           src={spot.image} 
           alt={spot.name}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover pointer-events-none"
+          draggable={false}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
         
