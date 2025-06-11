@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Heart, MapPin, Tag, List, Home } from "lucide-react";
+import { Heart, MapPin, Tag, List, Home, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SwipeCard from "@/components/SwipeCard";
 import BucketList from "@/components/BucketList";
@@ -87,36 +87,46 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-blue-50">
+    <div className="min-h-screen bg-tambii-gray relative">
       {/* Header */}
-      <header className="flex items-center justify-between p-4 bg-white/80 backdrop-blur-sm border-b border-orange-100">
-        <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 rounded-full gradient-tambii flex items-center justify-center">
-            <MapPin className="w-4 h-4 text-white" />
+      <header className="relative z-10 flex items-center justify-between p-6 modern-card mx-4 mt-4 rounded-3xl">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 rounded-2xl bg-tambii-dark flex items-center justify-center">
+            <MapPin className="w-5 h-5 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-tambii-orange">Tambii</h1>
+          <h1 className="text-2xl font-bold text-tambii-dark tracking-tight">tambii</h1>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowBucketList(true)}
-          className="border-orange-200 text-tambii-orange hover:bg-orange-50"
-        >
-          <List className="w-4 h-4 mr-2" />
-          Bucket List ({bucketList.length})
-        </Button>
+        
+        <div className="flex items-center space-x-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-10 w-10 p-0 rounded-2xl hover:bg-gray-100"
+          >
+            <Search className="w-5 h-5 text-tambii-dark" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowBucketList(true)}
+            className="rounded-2xl text-tambii-dark hover:bg-gray-100 px-4"
+          >
+            <List className="w-4 h-4 mr-2" />
+            {bucketList.length}
+          </Button>
+        </div>
       </header>
 
       {/* Main Content */}
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-120px)] p-4">
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-[calc(100vh-140px)] p-6">
         {currentSpotIndex < mockSpots.length ? (
           <>
             <div className="text-center mb-8">
-              <h2 className="text-xl font-semibold text-gray-700 mb-2">
-                Discover Amazing Tambayans
+              <h2 className="text-3xl font-bold text-tambii-dark mb-3 tracking-tight">
+                Discover places
               </h2>
-              <p className="text-gray-500">
-                Swipe right to add to your bucket list!
+              <p className="text-gray-600 text-lg">
+                Find the best course for you
               </p>
             </div>
 
@@ -126,18 +136,18 @@ const Index = () => {
             />
 
             {/* Action Buttons */}
-            <div className="flex space-x-8 mt-8">
+            <div className="flex items-center justify-center space-x-6 mt-8">
               <Button
                 variant="outline"
                 size="lg"
-                className="w-16 h-16 rounded-full border-2 border-gray-300 hover:border-red-400 hover:bg-red-50"
+                className="w-14 h-14 rounded-2xl border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 p-0"
                 onClick={() => handleSwipe('left')}
               >
-                <span className="text-2xl">👎</span>
+                <span className="text-xl">✕</span>
               </Button>
               <Button
                 size="lg"
-                className="w-16 h-16 rounded-full gradient-tambii hover:scale-105 transition-transform"
+                className="w-14 h-14 rounded-2xl bg-tambii-dark hover:bg-tambii-dark/90 p-0"
                 onClick={() => handleSwipe('right')}
               >
                 <Heart className="w-6 h-6 text-white" />
@@ -146,31 +156,31 @@ const Index = () => {
           </>
         ) : (
           <div className="text-center">
-            <div className="w-24 h-24 mx-auto mb-6 rounded-full gradient-tambii flex items-center justify-center">
+            <div className="w-24 h-24 mx-auto mb-6 rounded-3xl bg-tambii-dark flex items-center justify-center">
               <Heart className="w-12 h-12 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-700 mb-4">
-              You've seen all spots!
+            <h2 className="text-3xl font-bold text-tambii-dark mb-4 tracking-tight">
+              All done!
             </h2>
-            <p className="text-gray-500 mb-6">
-              Check out your bucket list or come back later for more tambayans.
+            <p className="text-gray-600 mb-8 text-lg">
+              Check out your saved places or explore more tomorrow.
             </p>
             <Button
               onClick={() => setShowBucketList(true)}
-              className="gradient-tambii hover:scale-105 transition-transform"
+              className="bg-tambii-dark hover:bg-tambii-dark/90 rounded-2xl px-8 py-3 text-base"
             >
               <List className="w-4 h-4 mr-2" />
-              View My Bucket List ({bucketList.length})
+              View Saved Places ({bucketList.length})
             </Button>
           </div>
         )}
       </div>
 
-      {/* Bottom Navigation Hint */}
-      <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2">
-        <div className="bg-white/90 backdrop-blur-sm rounded-full px-6 py-2 shadow-lg border border-orange-100">
-          <p className="text-sm text-gray-600">
-            👈 Skip • 💖 Add to List
+      {/* Bottom Navigation */}
+      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-10">
+        <div className="modern-card rounded-full px-6 py-3 shadow-lg">
+          <p className="text-sm text-gray-600 font-medium">
+            ✕ Pass • ♡ Save
           </p>
         </div>
       </div>
