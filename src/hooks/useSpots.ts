@@ -33,7 +33,7 @@ export const useSpots = () => {
         .from('spots')
         .select(`
           *,
-          profiles!spots_user_id_fkey (
+          profiles!inner (
             username,
             email
           )
@@ -45,7 +45,7 @@ export const useSpots = () => {
         return;
       }
 
-      const formattedSpots: SpotData[] = (data as DatabaseSpot[]).map(spot => ({
+      const formattedSpots: SpotData[] = (data || []).map(spot => ({
         id: parseInt(spot.id.split('-')[0], 16), // Convert UUID to number for compatibility
         name: spot.name,
         location: spot.location,

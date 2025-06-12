@@ -34,7 +34,7 @@ const BucketList = ({ spots, onBack }: BucketListProps) => {
             <div className="w-24 h-24 mx-auto mb-6 rounded-3xl bg-gray-100 flex items-center justify-center">
               <Heart className="w-12 h-12 text-gray-400" />
             </div>
-            <h2 className="text-2xl font-bold text-tambii-dark mb-3 tracking-tight">
+            <h2 className="text-3xl font-bold text-tambii-dark mb-3 tracking-tight">
               No places saved yet
             </h2>
             <p className="text-gray-600 text-lg">

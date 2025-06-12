@@ -13,7 +13,7 @@ interface UserProfileProps {
 }
 
 const UserProfile = ({ onBack }: UserProfileProps) => {
-  const { user, signOut } = useAuth();
+  const { user, userProfile, signOut } = useAuth();
   const { seedMockData } = useSpots();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -50,13 +50,13 @@ const UserProfile = ({ onBack }: UserProfileProps) => {
             <User className="w-10 h-10 text-white" />
           </div>
           <h2 className="text-2xl font-bold text-tambii-dark mb-2">Profile</h2>
-          <p className="text-gray-600">{user?.email}</p>
+          <p className="text-gray-600">{userProfile?.username || user?.email}</p>
         </div>
 
         <div className="space-y-4">
           <div className="text-center">
             <Badge variant="secondary" className="bg-gray-100 text-gray-700">
-              {user?.user_metadata?.username || 'User'}
+              {userProfile?.username || 'User'}
             </Badge>
           </div>
 

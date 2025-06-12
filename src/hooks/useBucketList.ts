@@ -20,9 +20,9 @@ export const useBucketList = () => {
       const { data, error } = await supabase
         .from('user_bucket_lists')
         .select(`
-          spots!user_bucket_lists_spot_id_fkey (
+          spots!inner (
             *,
-            profiles!spots_user_id_fkey (
+            profiles!inner (
               username,
               email
             )
@@ -36,7 +36,7 @@ export const useBucketList = () => {
         return;
       }
 
-      const formattedSpots: SpotData[] = data
+      const formattedSpots: SpotData[] = (data || [])
         .filter(item => item.spots) // Filter out any null spots
         .map(item => {
           const spot = item.spots as DatabaseSpot;

@@ -11,7 +11,7 @@ import { useSpots } from "@/hooks/useSpots";
 import { useBucketList } from "@/hooks/useBucketList";
 
 const Index = () => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, userProfile } = useAuth();
   const { spots, loading: spotsLoading } = useSpots();
   const { bucketList, addToBucketList } = useBucketList();
   const navigate = useNavigate();
@@ -76,18 +76,23 @@ const Index = () => {
           <div className="w-10 h-10 rounded-2xl bg-tambii-dark flex items-center justify-center">
             <MapPin className="w-5 h-5 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-tambii-dark tracking-tight">tambii</h1>
+          <h1 className="text-2xl font-bold text-tambii-dark tracking-tight">Tambii</h1>
         </div>
         
         <div className="flex items-center space-x-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowProfile(true)}
-            className="h-10 w-10 p-0 rounded-2xl hover:bg-gray-100"
-          >
-            <User className="w-5 h-5 text-tambii-dark" />
-          </Button>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowProfile(true)}
+              className="h-10 w-10 p-0 rounded-2xl hover:bg-gray-100"
+            >
+              <User className="w-5 h-5 text-tambii-dark" />
+            </Button>
+            <span className="text-sm text-tambii-dark font-medium">
+              {userProfile?.username || user.email}
+            </span>
+          </div>
           <Button
             variant="ghost"
             size="sm"
