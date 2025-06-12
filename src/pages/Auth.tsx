@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -77,7 +76,7 @@ const Auth = () => {
             <MapPin className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-tambii-dark tracking-tight mb-2">
-            tambii
+            Tambii
           </h1>
           <p className="text-gray-600">
             {isLogin ? 'Welcome back!' : 'Join the community'}

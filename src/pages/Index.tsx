@@ -90,7 +90,7 @@ const Index = () => {
               <User className="w-5 h-5 text-tambii-dark" />
             </Button>
             <span className="text-sm text-tambii-dark font-medium">
-              {userProfile?.username || user.email}
+              {userProfile.username || user.email}
             </span>
           </div>
           <Button
