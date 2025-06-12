@@ -125,6 +125,11 @@ const SwipeCard = ({ spot, onSwipe }: SwipeCardProps) => {
             <MapPin className="w-4 h-4 mr-2" />
             <span className="text-sm">{spot.location}</span>
           </div>
+          {spot.author && (
+            <p className="text-xs text-gray-500 mb-3">
+              Posted by {spot.author}
+            </p>
+          )}
         </div>
 
         {/* Description */}

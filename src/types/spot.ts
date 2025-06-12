@@ -8,4 +8,5 @@ export interface SpotData {
   tags: string[];
   likes: number;
   comments: number;
+  author?: string;
 }
