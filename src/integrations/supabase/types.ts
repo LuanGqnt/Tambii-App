@@ -14,25 +14,25 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           email: string | null
-          full_name: string | null
           id: string
           updated_at: string
+          username: string | null
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
           email?: string | null
-          full_name?: string | null
           id: string
           updated_at?: string
+          username?: string | null
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
           email?: string | null
-          full_name?: string | null
           id?: string
           updated_at?: string
+          username?: string | null
         }
         Relationships: []
       }
@@ -77,6 +77,35 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_bucket_lists: {
+        Row: {
+          created_at: string
+          id: string
+          spot_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          spot_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          spot_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_bucket_lists_spot_id_fkey"
+            columns: ["spot_id"]
+            isOneToOne: false
+            referencedRelation: "spots"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

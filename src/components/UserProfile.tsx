@@ -56,7 +56,7 @@ const UserProfile = ({ onBack }: UserProfileProps) => {
         <div className="space-y-4">
           <div className="text-center">
             <Badge variant="secondary" className="bg-gray-100 text-gray-700">
-              {user?.user_metadata?.full_name || 'User'}
+              {user?.user_metadata?.username || 'User'}
             </Badge>
           </div>
 

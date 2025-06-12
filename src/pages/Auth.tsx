@@ -13,7 +13,7 @@ const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   
@@ -42,7 +42,7 @@ const Auth = () => {
           navigate('/');
         }
       } else {
-        const { error } = await signUp(email, password, fullName);
+        const { error } = await signUp(email, password, username);
         if (error) {
           toast({
             title: "Error signing up",
@@ -88,15 +88,15 @@ const Auth = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           {!isLogin && (
             <div className="space-y-2">
-              <Label htmlFor="fullName">Full Name</Label>
+              <Label htmlFor="username">Username</Label>
               <Input
-                id="fullName"
+                id="username"
                 type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
                 className="rounded-2xl"
-                placeholder="Enter your full name"
+                placeholder="Enter your username"
               />
             </div>
           )}

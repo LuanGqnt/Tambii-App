@@ -6,17 +6,17 @@ import { useNavigate } from "react-router-dom";
 import SwipeCard from "@/components/SwipeCard";
 import BucketList from "@/components/BucketList";
 import UserProfile from "@/components/UserProfile";
-import { SpotData } from "@/types/spot";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSpots } from "@/hooks/useSpots";
+import { useBucketList } from "@/hooks/useBucketList";
 
 const Index = () => {
   const { user, loading: authLoading } = useAuth();
   const { spots, loading: spotsLoading } = useSpots();
+  const { bucketList, addToBucketList } = useBucketList();
   const navigate = useNavigate();
   
   const [currentSpotIndex, setCurrentSpotIndex] = useState(0);
-  const [bucketList, setBucketList] = useState<SpotData[]>([]);
   const [showBucketList, setShowBucketList] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
 
@@ -28,9 +28,9 @@ const Index = () => {
     }
   }, [user, authLoading, navigate]);
 
-  const handleSwipe = (direction: 'left' | 'right') => {
+  const handleSwipe = async (direction: 'left' | 'right') => {
     if (direction === 'right' && currentSpot) {
-      setBucketList(prev => [...prev, currentSpot]);
+      await addToBucketList(currentSpot);
     }
     
     setTimeout(() => {

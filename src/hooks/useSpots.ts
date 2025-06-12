@@ -17,7 +17,7 @@ export interface DatabaseSpot {
   created_at: string;
   updated_at: string;
   profiles?: {
-    full_name: string;
+    username: string;
     email: string;
   } | null;
 }
@@ -34,7 +34,7 @@ export const useSpots = () => {
         .select(`
           *,
           profiles!spots_user_id_fkey (
-            full_name,
+            username,
             email
           )
         `)
@@ -54,7 +54,7 @@ export const useSpots = () => {
         tags: spot.tags,
         likes: spot.likes,
         comments: spot.comments,
-        author: spot.profiles?.full_name || spot.profiles?.email || 'Anonymous'
+        author: spot.profiles?.username || spot.profiles?.email || 'Anonymous'
       }));
 
       setSpots(formattedSpots);
