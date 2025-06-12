@@ -1,4 +1,3 @@
-
 export interface SpotData {
   id: number;
   name: string;
@@ -8,5 +7,5 @@ export interface SpotData {
   tags: string[];
   likes: number;
   comments: number;
-  author?: string;
+  author: string;
 }

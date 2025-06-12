@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { SpotData } from '@/types/spot';
@@ -16,10 +15,7 @@ export interface DatabaseSpot {
   comments: number;
   created_at: string;
   updated_at: string;
-  profiles?: {
-    username: string;
-    email: string;
-  } | null;
+  author: string;
 }
 
 export const useSpots = () => {
@@ -31,21 +27,22 @@ export const useSpots = () => {
     try {
       const { data, error } = await supabase
         .from('spots')
-        .select(`
-          *,
-          profiles!inner (
-            username,
-            email
-          )
-        `)
+        .select(`*`)
         .order('created_at', { ascending: false });
+        // .select(`
+        //   *,
+        //   profiles!inner (
+        //     username,
+        //     email
+        //   )
+        // `)
 
       if (error) {
         console.error('Error fetching spots:', error);
         return;
       }
 
-      const formattedSpots: SpotData[] = (data || []).map(spot => ({
+      const formattedSpots: SpotData[] = (data as DatabaseSpot[]).map(spot => ({
         id: parseInt(spot.id.split('-')[0], 16), // Convert UUID to number for compatibility
         name: spot.name,
         location: spot.location,
@@ -54,7 +51,7 @@ export const useSpots = () => {
         tags: spot.tags,
         likes: spot.likes,
         comments: spot.comments,
-        author: spot.profiles?.username || spot.profiles?.email || 'Anonymous'
+        author: spot.author ?? 'Anonymous'
       }));
 
       setSpots(formattedSpots);
@@ -77,7 +74,7 @@ export const useSpots = () => {
         }])
         .select()
         .single();
-
+        
       if (error) {
         console.error('Error creating spot:', error);
         return { error };
@@ -103,7 +100,8 @@ export const useSpots = () => {
         description: "Perfect surf spot with crystal clear waters and amazing waves. The ultimate chill vibe by the beach.",
         tags: ["beach", "surf", "tahimik", "aesthetic"],
         likes: 142,
-        comments: 23
+        comments: 23,
+        author: "Luan",
       },
       {
         name: "La Union Surfing Break",
@@ -112,7 +110,8 @@ export const useSpots = () => {
         description: "Epic waves and sunset views. Great for both beginners and pro surfers. Amazing food trucks nearby!",
         tags: ["surf", "sunset", "food-trip", "vibrant"],
         likes: 89,
-        comments: 15
+        comments: 15,
+        author: "Luan",
       },
       {
         name: "Sagada Hanging Coffins",
@@ -121,7 +120,8 @@ export const useSpots = () => {
         description: "Mystical mountain views and ancient traditions. Perfect for soul-searching and adventure.",
         tags: ["mountain", "adventure", "tahimik", "cultural"],
         likes: 201,
-        comments: 45
+        comments: 45,
+        author: "Luan",
       }
     ];
 

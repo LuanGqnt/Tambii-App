@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { SpotData } from '@/types/spot';
@@ -19,17 +18,32 @@ export const useBucketList = () => {
     try {
       const { data, error } = await supabase
         .from('user_bucket_lists')
-        .select(`
-          spots!inner (
-            *,
-            profiles!inner (
-              username,
-              email
-            )
+        .select((`
+          spot_id,
+          spots (
+            id,
+            name,
+            location,
+            image,
+            description,
+            tags,
+            likes,
+            comments,
+            author
           )
-        `)
+        `))
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
+
+        // .select(`
+        //   spots!inner (
+        //     *,
+        //     profiles!inner (
+        //       username,
+        //       email
+        //     )
+        //   )
+        // `)
 
       if (error) {
         console.error('Error fetching bucket list:', error);
@@ -39,7 +53,7 @@ export const useBucketList = () => {
       const formattedSpots: SpotData[] = (data || [])
         .filter(item => item.spots) // Filter out any null spots
         .map(item => {
-          const spot = item.spots as DatabaseSpot;
+          const spot = item.spots as unknown as DatabaseSpot;
           return {
             id: parseInt(spot.id.split('-')[0], 16),
             name: spot.name,
@@ -49,7 +63,7 @@ export const useBucketList = () => {
             tags: spot.tags,
             likes: spot.likes,
             comments: spot.comments,
-            author: spot.profiles?.username || spot.profiles?.email || 'Anonymous'
+            author: spot.author ?? 'Anonymous',
           };
         });
 
