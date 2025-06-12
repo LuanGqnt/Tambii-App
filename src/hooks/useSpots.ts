@@ -19,7 +19,7 @@ export interface DatabaseSpot {
   profiles?: {
     full_name: string;
     email: string;
-  };
+  } | null;
 }
 
 export const useSpots = () => {
@@ -33,7 +33,7 @@ export const useSpots = () => {
         .from('spots')
         .select(`
           *,
-          profiles:user_id (
+          profiles!spots_user_id_fkey (
             full_name,
             email
           )
@@ -65,7 +65,7 @@ export const useSpots = () => {
     }
   };
 
-  const createSpot = async (spotData: Omit<DatabaseSpot, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+  const createSpot = async (spotData: Omit<DatabaseSpot, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'profiles'>) => {
     if (!user) return { error: 'User not authenticated' };
 
     try {
