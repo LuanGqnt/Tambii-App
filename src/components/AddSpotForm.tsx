@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { ArrowLeft, Plus, MapPin } from "lucide-react";
+import { ArrowLeft, Plus, MapPin, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,10 +20,11 @@ const AddSpotForm = ({ onBack, onSuccess }: AddSpotFormProps) => {
   const [formData, setFormData] = useState({
     name: "",
     location: "",
-    image: "",
     description: "",
     tags: [] as string[]
   });
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [newTag, setNewTag] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -32,6 +33,23 @@ const AddSpotForm = ({ onBack, onSuccess }: AddSpotFormProps) => {
       ...prev,
       [field]: value
     }));
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    setSelectedImages(files);
+    
+    // Create preview URLs
+    const previews = files.map(file => URL.createObjectURL(file));
+    setImagePreviews(previews);
+  };
+
+  const removeImage = (index: number) => {
+    // Revoke the URL to prevent memory leaks
+    URL.revokeObjectURL(imagePreviews[index]);
+    
+    setSelectedImages(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
   };
 
   const addTag = () => {
@@ -53,20 +71,27 @@ const AddSpotForm = ({ onBack, onSuccess }: AddSpotFormProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.location || !formData.image || !formData.description) {
+    if (!formData.name || !formData.location || !formData.description || selectedImages.length === 0) {
       return;
     }
 
     setIsSubmitting(true);
     try {
+      // For now, we'll use the first image's object URL as a placeholder
+      // In a real app, you'd upload to storage and get URLs
+      const imageUrl = imagePreviews[0] || '';
+      
       const result = await createSpot({
         ...formData,
+        image: imageUrl,
         likes: 0,
         comments: 0,
         author: userProfile?.username || 'Anonymous'
       });
 
       if (!result.error) {
+        // Clean up preview URLs
+        imagePreviews.forEach(url => URL.revokeObjectURL(url));
         onSuccess();
       }
     } catch (error) {
@@ -127,29 +152,39 @@ const AddSpotForm = ({ onBack, onSuccess }: AddSpotFormProps) => {
               </div>
             </div>
 
-            {/* Image URL */}
+            {/* Images */}
             <div>
               <label className="block text-sm font-medium text-tambii-dark mb-2">
-                Image URL *
+                Images *
               </label>
               <Input
-                value={formData.image}
-                onChange={(e) => handleInputChange('image', e.target.value)}
-                placeholder="https://example.com/image.jpg"
-                type="url"
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageChange}
                 className="rounded-2xl border-gray-200"
-                required
+                required={selectedImages.length === 0}
               />
-              {formData.image && (
-                <div className="mt-3">
-                  <img 
-                    src={formData.image} 
-                    alt="Preview" 
-                    className="w-full h-48 object-cover rounded-2xl"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
+              {imagePreviews.length > 0 && (
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  {imagePreviews.map((preview, index) => (
+                    <div key={index} className="relative">
+                      <img 
+                        src={preview} 
+                        alt={`Preview ${index + 1}`} 
+                        className="w-full h-32 object-cover rounded-2xl"
+                      />
+                      <Button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-2 right-2 h-6 w-6 p-0 rounded-full"
+                      >
+                        <X className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -212,7 +247,7 @@ const AddSpotForm = ({ onBack, onSuccess }: AddSpotFormProps) => {
             {/* Submit Button */}
             <Button
               type="submit"
-              disabled={isSubmitting || !formData.name || !formData.location || !formData.image || !formData.description}
+              disabled={isSubmitting || !formData.name || !formData.location || !formData.description || selectedImages.length === 0}
               className="w-full bg-tambii-dark hover:bg-tambii-dark/90 text-white rounded-2xl py-3 text-base font-medium"
             >
               {isSubmitting ? 'Sharing...' : 'Share Spot'}
