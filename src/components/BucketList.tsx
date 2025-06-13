@@ -1,9 +1,10 @@
 
-import { ArrowLeft, Heart, MapPin, MessageCircle } from "lucide-react";
+import { ArrowLeft, Heart, MapPin, MessageCircle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SpotData } from "@/types/spot";
+import { useBucketList } from "@/hooks/useBucketList";
 
 interface BucketListProps {
   spots: SpotData[];
@@ -11,6 +12,12 @@ interface BucketListProps {
 }
 
 const BucketList = ({ spots, onBack }: BucketListProps) => {
+  const { removeFromBucketList } = useBucketList();
+
+  const handleRemoveSpot = async (spot: SpotData) => {
+    await removeFromBucketList(spot);
+  };
+
   return (
     <div className="min-h-screen bg-tambii-gray">
       {/* Header */}
@@ -64,9 +71,19 @@ const BucketList = ({ spots, onBack }: BucketListProps) => {
 
                     {/* Content */}
                     <div className="flex-1 p-4">
-                      <h3 className="text-lg font-bold text-tambii-dark mb-1 tracking-tight">
-                        {spot.name}
-                      </h3>
+                      <div className="flex justify-between items-start mb-1">
+                        <h3 className="text-lg font-bold text-tambii-dark tracking-tight">
+                          {spot.name}
+                        </h3>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveSpot(spot)}
+                          className="h-8 w-8 p-0 rounded-xl hover:bg-red-50 text-red-500 hover:text-red-600"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                       
                       <div className="flex items-center text-gray-600 mb-2">
                         <MapPin className="w-3 h-3 mr-1" />

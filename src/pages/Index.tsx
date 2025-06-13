@@ -1,11 +1,12 @@
 
 import { useState, useEffect } from "react";
-import { Heart, MapPin, List, User } from "lucide-react";
+import { Heart, MapPin, List, User, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import SwipeCard from "@/components/SwipeCard";
 import BucketList from "@/components/BucketList";
 import UserProfile from "@/components/UserProfile";
+import AddSpotForm from "@/components/AddSpotForm";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSpots } from "@/hooks/useSpots";
 import { useBucketList } from "@/hooks/useBucketList";
@@ -19,6 +20,7 @@ const Index = () => {
   const [currentSpotIndex, setCurrentSpotIndex] = useState(0);
   const [showBucketList, setShowBucketList] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [showAddSpot, setShowAddSpot] = useState(false);
 
   const currentSpot = spots[currentSpotIndex];
 
@@ -38,6 +40,11 @@ const Index = () => {
     }, 300);
   };
 
+  const handleAddSpotSuccess = () => {
+    setShowAddSpot(false);
+    setCurrentSpotIndex(0); // Reset to show new spots
+  };
+
   if (authLoading || spotsLoading) {
     return (
       <div className="min-h-screen bg-tambii-gray flex items-center justify-center">
@@ -53,6 +60,10 @@ const Index = () => {
 
   if (!user) {
     return null;
+  }
+
+  if (showAddSpot) {
+    return <AddSpotForm onBack={() => setShowAddSpot(false)} onSuccess={handleAddSpotSuccess} />;
   }
 
   if (showProfile) {
@@ -90,9 +101,18 @@ const Index = () => {
               <User className="w-5 h-5 text-tambii-dark" />
             </Button>
             <span className="text-sm text-tambii-dark font-medium">
-              {userProfile.username || user.email}
+              {userProfile?.username || user.email}
             </span>
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowAddSpot(true)}
+            className="rounded-2xl text-tambii-dark hover:bg-gray-100 px-4"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add
+          </Button>
           <Button
             variant="ghost"
             size="sm"
@@ -156,13 +176,23 @@ const Index = () => {
                 : "Check out your saved places or explore more tomorrow."
               }
             </p>
-            <Button
-              onClick={() => setShowBucketList(true)}
-              className="bg-tambii-dark hover:bg-tambii-dark/90 rounded-2xl px-8 py-3 text-base"
-            >
-              <List className="w-4 h-4 mr-2" />
-              View Saved Places ({bucketList.length})
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button
+                onClick={() => setShowBucketList(true)}
+                className="bg-tambii-dark hover:bg-tambii-dark/90 rounded-2xl px-8 py-3 text-base"
+              >
+                <List className="w-4 h-4 mr-2" />
+                View Saved Places ({bucketList.length})
+              </Button>
+              <Button
+                onClick={() => setShowAddSpot(true)}
+                variant="outline"
+                className="rounded-2xl px-8 py-3 text-base border-tambii-dark text-tambii-dark hover:bg-tambii-dark hover:text-white"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Share a Spot
+              </Button>
+            </div>
           </div>
         )}
       </div>

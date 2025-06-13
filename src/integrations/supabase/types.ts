@@ -38,6 +38,7 @@ export type Database = {
       }
       spots: {
         Row: {
+          author: string | null
           comments: number
           created_at: string
           description: string
@@ -51,6 +52,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          author?: string | null
           comments?: number
           created_at?: string
           description: string
@@ -64,6 +66,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          author?: string | null
           comments?: number
           created_at?: string
           description?: string
