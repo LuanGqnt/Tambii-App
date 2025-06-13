@@ -4,6 +4,7 @@ import { Heart, MessageCircle, MapPin } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SpotData } from "@/types/spot";
+import { useNavigate } from "react-router-dom";
 
 interface SwipeCardProps {
   spot: SpotData;
@@ -14,6 +15,7 @@ const SwipeCard = ({ spot, onSwipe }: SwipeCardProps) => {
   const [dragOffset, setDragOffset] = useState(0);
   const isDragging = useRef(false);
   const startX = useRef(0);
+  const navigate = useNavigate();
 
   const handleMouseDown = (e: React.MouseEvent) => {
     isDragging.current = true;
@@ -62,6 +64,14 @@ const SwipeCard = ({ spot, onSwipe }: SwipeCardProps) => {
     setDragOffset(0);
   };
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Only navigate if we're not dragging and the drag offset is minimal
+    if (!isDragging.current && Math.abs(dragOffset) < 10) {
+      e.preventDefault();
+      navigate(`/spot/${spot.id}`);
+    }
+  };
+
   return (
     <Card 
       className={`w-full max-w-sm mx-auto swipe-card cursor-grab active:cursor-grabbing relative overflow-hidden modern-card border-0 shadow-xl rounded-3xl transition-transform duration-200 select-none ${
@@ -77,6 +87,7 @@ const SwipeCard = ({ spot, onSwipe }: SwipeCardProps) => {
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
+      onClick={handleCardClick}
     >
       {/* Like/Dislike Indicators */}
       {dragOffset > 50 && (

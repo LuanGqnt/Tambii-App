@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useBucketList } from "@/hooks/useBucketList";
 import { SpotData } from "@/types/spot";
+import { useNavigate } from "react-router-dom";
 
 interface BucketListProps {
   onBack: () => void;
@@ -12,9 +13,15 @@ interface BucketListProps {
 
 const BucketList = ({ onBack }: BucketListProps) => {
   const { bucketList, removeFromBucketList, loading } = useBucketList();
+  const navigate = useNavigate();
 
-  const handleRemoveSpot = async (spot: SpotData) => {
+  const handleRemoveSpot = async (e: React.MouseEvent, spot: SpotData) => {
+    e.stopPropagation(); // Prevent navigation when clicking delete
     await removeFromBucketList(spot);
+  };
+
+  const handleCardClick = (spot: SpotData) => {
+    navigate(`/spot/${spot.id}`);
   };
 
   if (loading) {
@@ -70,7 +77,11 @@ const BucketList = ({ onBack }: BucketListProps) => {
             
             <div className="grid gap-4">
               {bucketList.map((spot) => (
-                <Card key={spot.id} className="modern-card border-0 shadow-lg rounded-2xl overflow-hidden">
+                <Card 
+                  key={spot.id} 
+                  className="modern-card border-0 shadow-lg rounded-2xl overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
+                  onClick={() => handleCardClick(spot)}
+                >
                   <div className="flex">
                     {/* Image */}
                     <div className="w-32 h-32 flex-shrink-0">
@@ -90,7 +101,7 @@ const BucketList = ({ onBack }: BucketListProps) => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleRemoveSpot(spot)}
+                          onClick={(e) => handleRemoveSpot(e, spot)}
                           className="h-8 w-8 p-0 rounded-xl hover:bg-red-50 text-red-500 hover:text-red-600"
                         >
                           <Trash2 className="w-4 h-4" />
