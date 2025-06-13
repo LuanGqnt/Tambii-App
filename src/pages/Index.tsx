@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Heart, MapPin, List, User, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -73,7 +72,6 @@ const Index = () => {
   if (showBucketList) {
     return (
       <BucketList 
-        spots={bucketList} 
         onBack={() => setShowBucketList(false)}
       />
     );

@@ -3,20 +3,32 @@ import { ArrowLeft, Heart, MapPin, MessageCircle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { SpotData } from "@/types/spot";
 import { useBucketList } from "@/hooks/useBucketList";
+import { SpotData } from "@/types/spot";
 
 interface BucketListProps {
-  spots: SpotData[];
   onBack: () => void;
 }
 
-const BucketList = ({ spots, onBack }: BucketListProps) => {
-  const { removeFromBucketList } = useBucketList();
+const BucketList = ({ onBack }: BucketListProps) => {
+  const { bucketList, removeFromBucketList, loading } = useBucketList();
 
   const handleRemoveSpot = async (spot: SpotData) => {
     await removeFromBucketList(spot);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-tambii-gray flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-tambii-dark flex items-center justify-center">
+            <Heart className="w-8 h-8 text-white animate-pulse" />
+          </div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-tambii-gray">
@@ -36,7 +48,7 @@ const BucketList = ({ spots, onBack }: BucketListProps) => {
       </header>
 
       <div className="p-6 space-y-4">
-        {spots.length === 0 ? (
+        {bucketList.length === 0 ? (
           <div className="text-center py-16">
             <div className="w-24 h-24 mx-auto mb-6 rounded-3xl bg-gray-100 flex items-center justify-center">
               <Heart className="w-12 h-12 text-gray-400" />
@@ -52,12 +64,12 @@ const BucketList = ({ spots, onBack }: BucketListProps) => {
           <>
             <div className="text-center mb-6">
               <p className="text-gray-600">
-                {spots.length} place{spots.length !== 1 ? 's' : ''} to visit
+                {bucketList.length} place{bucketList.length !== 1 ? 's' : ''} to visit
               </p>
             </div>
             
             <div className="grid gap-4">
-              {spots.map((spot) => (
+              {bucketList.map((spot) => (
                 <Card key={spot.id} className="modern-card border-0 shadow-lg rounded-2xl overflow-hidden">
                   <div className="flex">
                     {/* Image */}
