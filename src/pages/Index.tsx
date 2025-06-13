@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Heart, MapPin, List, User, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -105,15 +106,6 @@ const Index = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setShowAddSpot(true)}
-            className="rounded-2xl text-tambii-dark hover:bg-gray-100 px-4"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Add
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
             onClick={() => setShowBucketList(true)}
             className="rounded-2xl text-tambii-dark hover:bg-gray-100 px-4"
           >
@@ -194,6 +186,14 @@ const Index = () => {
           </div>
         )}
       </div>
+
+      {/* Floating Add Button */}
+      <Button
+        onClick={() => setShowAddSpot(true)}
+        className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-tambii-dark hover:bg-tambii-dark/90 shadow-lg z-20 p-0"
+      >
+        <Plus className="w-6 h-6 text-white" />
+      </Button>
 
       {/* Bottom Navigation */}
       <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-10">
