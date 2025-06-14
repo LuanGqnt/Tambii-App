@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Heart, MapPin, List, User, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,7 +13,7 @@ import { useBucketList } from "@/hooks/useBucketList";
 const Index = () => {
   const { user, loading: authLoading, userProfile } = useAuth();
   const { spots, loading: spotsLoading } = useSpots();
-  const { bucketList, addToBucketList } = useBucketList();
+  const { bucketList, addToBucketList, fetchBucketList } = useBucketList();
   const navigate = useNavigate();
   
   const [currentSpotIndex, setCurrentSpotIndex] = useState(0);
@@ -73,7 +72,10 @@ const Index = () => {
   if (showBucketList) {
     return (
       <BucketList 
-        onBack={() => setShowBucketList(false)}
+        onBack={() => {
+          fetchBucketList();
+          setShowBucketList(false);
+        }}
       />
     );
   }
@@ -196,13 +198,13 @@ const Index = () => {
       </Button>
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-10">
+      {/* <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-10">
         <div className="modern-card rounded-full px-6 py-3 shadow-lg">
           <p className="text-sm text-gray-600 font-medium">
             ✕ Pass • ♡ Save
           </p>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

@@ -109,6 +109,46 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      },
+      comments: {
+        Row: {
+          id: number;
+          spot_id: string; // UUID
+          user_id: string; // UUID (reference to profiles or auth.users)
+          author: string;
+          comment: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: number;
+          spot_id: string;
+          user_id: string;
+          author: string;
+          comment: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: number;
+          spot_id?: string;
+          user_id?: string;
+          author?: string;
+          comment?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "comments_spot_id_fkey";
+            columns: ["spot_id"];
+            referencedRelation: "spots";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "comments_user_id_fkey";
+            columns: ["user_id"];
+            referencedRelation: "profiles"; // or "users" if you're referencing `auth.users`
+            referencedColumns: ["id"];
+          }
+        ];
       }
     }
     Views: {

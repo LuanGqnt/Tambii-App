@@ -43,7 +43,8 @@ export const useSpots = () => {
       }
 
       const formattedSpots: SpotData[] = (data as DatabaseSpot[]).map(spot => ({
-        id: parseInt(spot.id.split('-')[0], 16), // Convert UUID to number for compatibility
+        // id: parseInt(spot.id.split('-')[0], 16), // Convert UUID to number for compatibility
+        id: spot.id,
         name: spot.name,
         location: spot.location,
         image: spot.image,
@@ -100,7 +101,7 @@ export const useSpots = () => {
         description: "Perfect surf spot with crystal clear waters and amazing waves. The ultimate chill vibe by the beach.",
         tags: ["beach", "surf", "tahimik", "aesthetic"],
         likes: 142,
-        comments: 23,
+        comments: 0,
         author: "Luan",
       },
       {
@@ -110,7 +111,7 @@ export const useSpots = () => {
         description: "Epic waves and sunset views. Great for both beginners and pro surfers. Amazing food trucks nearby!",
         tags: ["surf", "sunset", "food-trip", "vibrant"],
         likes: 89,
-        comments: 15,
+        comments: 0,
         author: "Luan",
       },
       {
@@ -120,7 +121,7 @@ export const useSpots = () => {
         description: "Mystical mountain views and ancient traditions. Perfect for soul-searching and adventure.",
         tags: ["mountain", "adventure", "tahimik", "cultural"],
         likes: 201,
-        comments: 45,
+        comments: 0,
         author: "Luan",
       }
     ];

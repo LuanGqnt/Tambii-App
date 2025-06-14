@@ -53,9 +53,10 @@ export const useBucketList = () => {
       const formattedSpots: SpotData[] = (data || [])
         .filter(item => item.spots) // Filter out any null spots
         .map(item => {
-          const spot = item.spots as unknown as DatabaseSpot;
+          const spot = item.spots as DatabaseSpot;
           return {
-            id: parseInt(spot.id.split('-')[0], 16),
+            // id: parseInt(spot.id.split('-')[0], 16),
+            id: spot.id,
             name: spot.name,
             location: spot.location,
             image: spot.image,
@@ -142,7 +143,7 @@ export const useBucketList = () => {
       }
 
       // Refresh bucket list
-      await fetchBucketList();
+      fetchBucketList();
       return { success: true };
     } catch (error) {
       console.error('Error in removeFromBucketList:', error);

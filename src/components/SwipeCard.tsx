@@ -1,4 +1,3 @@
-
 import { useState, useRef } from "react";
 import { Heart, MessageCircle, MapPin } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -65,11 +64,11 @@ const SwipeCard = ({ spot, onSwipe }: SwipeCardProps) => {
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
-    // Only navigate if we're not dragging and the drag offset is minimal
-    if (!isDragging.current && Math.abs(dragOffset) < 10) {
-      e.preventDefault();
-      navigate(`/spot/${spot.id}`);
-    }
+    // // Only navigate if we're not dragging and the drag offset is minimal
+    // if (!isDragging.current && Math.abs(dragOffset) < 10) {
+    //   e.preventDefault();
+    //   navigate(`/spot/${spot.id}`);
+    // }
   };
 
   return (

@@ -1,5 +1,5 @@
 export interface SpotData {
-  id: number;
+  id: string;
   name: string;
   location: string;
   image: string;

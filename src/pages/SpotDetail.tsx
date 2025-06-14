@@ -1,25 +1,175 @@
-
 import { useState, useEffect } from "react";
-import { ArrowLeft, Heart, MessageCircle, MapPin, User } from "lucide-react";
+import { ArrowLeft, Heart, MessageCircle, MapPin, User, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSpots } from "@/hooks/useSpots";
+import { useAuth } from "@/contexts/AuthContext"; 
 import { SpotData } from "@/types/spot";
+import { supabase } from "@/integrations/supabase/client";
+
+const COMMENTS_LIMIT = 5;
+
+export interface CommentData {
+    author: string;
+    user_id: string;
+    spot_id: string;
+    comment: string;
+    created_at: string;
+};
 
 const SpotDetail = () => {
-  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+
+  const { id } = useParams<{ id: string }>();
   const { spots, loading } = useSpots();
   const [spot, setSpot] = useState<SpotData | null>(null);
+  const { user, userProfile } = useAuth();
+  
+  const [commentInput, setCommentInput] = useState<string>("");
+  const [comments, setComments] = useState<CommentData[]>([]);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [liveCommentCount, setLiveCommentCount] = useState<number>(0);
 
+  const handleCommentSend = async () => {
+    if (!user) return { error: 'User not authenticated' };
+    if (!spot) return { error: 'No spot selected' };
+    if(commentInput.trim() === "") return;
+
+    const commentData = {
+      author: userProfile?.username ?? 'Anonymous',
+      user_id: user.id,
+      spot_id: spot.id,
+      comment: commentInput,
+      created_at: new Date().toISOString(),
+    };
+
+    // Adds the comment to the database
+    const { error: insertError } = await supabase
+      .from("comments")
+      .insert([commentData]);
+
+    if (insertError) {
+      console.error("Failed to insert comment:", insertError);
+      alert("Error sending comment");
+      return;
+    }
+
+    // Step 2: Count comments for the current spot
+    // !! THIS COULD BE REFACTORED, THE PROBLEM HERE IS THAT IT'S ACTUALLY GETTING THE WHOLE COMMENTS??? IDK LOLOL
+    const { count, error: countError } = await supabase
+      .from("comments")
+      .select("*", { count: "exact", head: true })
+      .eq("spot_id", spot.id);
+
+    if (countError || count === null) {
+      console.error("Error counting comments:", countError);
+      return;
+    }
+
+    // Step 3: Set comment_count to actual count
+    const { error: updateError } = await supabase
+      .from("spots")
+      .update({ comments: count })
+      .eq("id", spot.id);
+
+    if (updateError) {
+      console.error("Error updating comment count:", updateError);
+      return;
+    }
+
+    console.log("Comment added successfully!");
+    setCommentInput(""); // Clear the input field
+    setLiveCommentCount(prev => prev + 1);
+
+    // Optional: Refresh comments list
+    fetchComments(true);
+  };
+
+  const fetchComments = async (initial = false) => {
+    if (commentsLoading || (!initial && !hasMore)) return;
+    setCommentsLoading(true);
+
+    let query = supabase
+      .from("comments")
+      .select("*")
+      .eq("spot_id", spot?.id)
+      .order("created_at", { ascending: false }) // newest first
+      .limit(COMMENTS_LIMIT);
+
+    if (!initial && comments.length > 0) {
+      const last = comments[comments.length - 1];
+      query = query.lt("created_at", last.created_at);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("Failed to load comments:", error.message);
+    } else {
+      if (initial) {
+        setComments(data);
+      } else {
+        setComments((prev) => [...prev, ...data]);
+      }
+
+      // If fewer than limit, no more to load
+      if (data.length < COMMENTS_LIMIT) {
+        setHasMore(false);
+      }
+    }
+
+    setCommentsLoading(false);
+  };
+
+  const timeAgo = (date: Date) => {
+    const now = new Date();
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    const intervals: [number, string][] = [
+      [60, "second"],
+      [60 * 60, "minute"],
+      [60 * 60 * 24, "hour"],
+      [60 * 60 * 24 * 30, "day"],
+      [60 * 60 * 24 * 365, "month"],
+      [Infinity, "year"],
+    ];
+
+    for (let i = 0; i < intervals.length; i++) {
+      const [threshold, label] = intervals[i];
+
+      if (seconds < threshold) {
+        const divisor = i === 0 ? 1 : intervals[i - 1][0];
+        const value = Math.floor(seconds / divisor);
+        return `${value} ${label}${value !== 1 ? "s" : ""} ago`;
+      }
+    }
+
+    return "Now";
+  }
+  
   useEffect(() => {
     if (!loading && spots.length > 0 && id) {
-      const foundSpot = spots.find(s => s.id === parseInt(id));
+      // const foundSpot = spots.find(s => s.id === parseInt(id));
+      const foundSpot = spots.find(s => s.id === id);
       setSpot(foundSpot || null);
+    }    
+  }, [id, spots, loading]);  
+
+  // Fetching the comments
+  useEffect(() => {
+    if(!spot) {
+      console.log('Spot is null');
+      return;
     }
-  }, [id, spots, loading]);
+
+    setHasMore(true);
+    fetchComments(true);
+    setLiveCommentCount(spot.comments);
+  }, [spot]);
 
   if (loading) {
     return (
@@ -84,7 +234,7 @@ const SpotDetail = () => {
               </div>
               <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center space-x-1">
                 <MessageCircle className="w-3 h-3 text-blue-500" />
-                <span className="text-xs font-medium text-gray-800">{spot.comments}</span>
+                <span className="text-xs font-medium text-gray-800">{liveCommentCount}</span>
               </div>
             </div>
           </div>
@@ -136,40 +286,74 @@ const SpotDetail = () => {
         {/* Comments Section */}
         <Card className="modern-card border-0 shadow-lg rounded-2xl p-6">
           <h3 className="text-lg font-semibold text-tambii-dark mb-4">
-            Comments ({spot.comments})
+            Comments ({liveCommentCount})
           </h3>
           
           {/* Mock comments for demonstration */}
           <div className="space-y-4">
-            {spot.comments > 0 ? (
-              Array.from({ length: Math.min(spot.comments, 3) }).map((_, index) => (
-                <div key={index} className="border-b border-gray-100 pb-4 last:border-b-0">
-                  <div className="flex items-start space-x-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                      <User className="w-4 h-4 text-gray-500" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2 mb-1">
-                        <span className="text-sm font-medium text-tambii-dark">
-                          User {index + 1}
-                        </span>
-                        <span className="text-xs text-gray-500">2 days ago</span>
+            {comments.length > 0 ? (
+              <>
+                {comments.map((comment, index) => (
+                    <div key={index} className="border-b border-gray-100 pb-4 last:border-b-0">
+                      <div className="flex items-start space-x-3">
+                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                          <User className="w-4 h-4 text-gray-500" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-1">
+                            <span className="text-sm font-medium text-tambii-dark">
+                              {comment.author ?? `User ${index + 1}`}
+                            </span>
+                            <span className="text-xs text-gray-500">{timeAgo(new Date(comment.created_at))}</span> {/* Replace with actual timestamp if available */}
+                          </div>
+                          <p className="text-sm text-gray-700">
+                            {comment.comment}
+                          </p>
+                        </div>
                       </div>
-                      <p className="text-sm text-gray-700">
-                        {index === 0 && "Amazing place! The vibes here are unmatched. Perfect for hanging out with friends."}
-                        {index === 1 && "Love the aesthetic of this spot. Great for photos too!"}
-                        {index === 2 && "Been here multiple times, never gets old. Highly recommend!"}
-                      </p>
                     </div>
-                  </div>
-                </div>
-              ))
+                ))}
+
+                {/* Load more comments */}
+                {hasMore && (
+                  <button
+                    onClick={() => fetchComments()}
+                    className="text-blue-500 text-sm hover:underline mt-2"
+                  >
+                    Load more comments
+                  </button>
+                )}
+              </>
             ) : (
               <p className="text-gray-500 text-center py-8">
                 No comments yet. Be the first to share your thoughts!
               </p>
             )}
           </div>
+          
+          {/* Comment Box */}
+
+          {user ? (
+            <div className="mt-6 border-t border-gray-200 pt-4">
+              <h4 className="text-sm font-medium text-tambii-dark mb-2">Leave a comment</h4>
+              <div className="flex items-center space-x-2">
+                <Input
+                  value={commentInput}
+                  onChange={(e) => setCommentInput(e.target.value)}
+                  placeholder="Write your thoughts here..."
+                  className="flex-1"
+                />
+                <Button
+                  onClick={handleCommentSend}
+                  className="flex items-center gap-1 px-4"
+                  variant="default"
+                >
+                  <Send className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          ) : <></>}
+
         </Card>
       </div>
     </div>
