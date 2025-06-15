@@ -22,6 +22,8 @@ export const useSpots = () => {
   const [spots, setSpots] = useState<SpotData[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const [likedSpots, setLikedSpots] = useState<Set<string>>(new Set());
+  const [loadingLikes, setLoadingLikes] = useState(true);
 
   const fetchSpots = async () => {
     try {
@@ -90,6 +92,51 @@ export const useSpots = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchLikes = async () => {
+      if (!user) return;
+      setLoadingLikes(true);
+
+      const { data, error } = await supabase
+        .from("likes")
+        .select("spot_id")
+        .eq("user_id", user.id);
+
+      if (error) {
+        console.error("Failed to fetch likes:", error);
+      } else {
+        setLikedSpots(new Set(data.map((like) => like.spot_id)));
+      }
+
+      setLoadingLikes(false);
+    };
+
+    fetchLikes();
+  }, [user]);
+
+  const hasLikedSpot = (spotId: string) => likedSpots.has(spotId);
+
+  const toggleLike = async (spotId: string) => {
+    if (!user) return;
+
+    const { error } = await supabase.rpc("toggle_like", {
+      spot_id_input: spotId,
+      user_id_input: user.id,
+    });
+
+    if (error) {
+      console.error("Error toggling like:", error);
+      return;
+    }
+
+    setLikedSpots((prev) => {
+      const updated = new Set(prev);
+      if (updated.has(spotId)) updated.delete(spotId);
+      else updated.add(spotId);
+      return updated;
+    });
+  };
+
   const seedMockData = async () => {
     if (!user) return;
 
@@ -100,7 +147,7 @@ export const useSpots = () => {
         image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
         description: "Perfect surf spot with crystal clear waters and amazing waves. The ultimate chill vibe by the beach.",
         tags: ["beach", "surf", "tahimik", "aesthetic"],
-        likes: 142,
+        likes: 0,
         comments: 0,
         author: "Luan",
       },
@@ -110,7 +157,7 @@ export const useSpots = () => {
         image: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
         description: "Epic waves and sunset views. Great for both beginners and pro surfers. Amazing food trucks nearby!",
         tags: ["surf", "sunset", "food-trip", "vibrant"],
-        likes: 89,
+        likes: 0,
         comments: 0,
         author: "Luan",
       },
@@ -120,7 +167,7 @@ export const useSpots = () => {
         image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
         description: "Mystical mountain views and ancient traditions. Perfect for soul-searching and adventure.",
         tags: ["mountain", "adventure", "tahimik", "cultural"],
-        likes: 201,
+        likes: 0,
         comments: 0,
         author: "Luan",
       }
@@ -140,6 +187,8 @@ export const useSpots = () => {
   return {
     spots,
     loading,
+    toggleLike,
+    hasLikedSpot,
     fetchSpots,
     createSpot,
     seedMockData

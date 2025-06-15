@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SpotData } from "@/types/spot";
 import { useNavigate } from "react-router-dom";
+import { useSpots } from "@/hooks/useSpots";
 
 interface SwipeCardProps {
   spot: SpotData;
@@ -15,6 +16,8 @@ const SwipeCard = ({ spot, onSwipe }: SwipeCardProps) => {
   const isDragging = useRef(false);
   const startX = useRef(0);
   const navigate = useNavigate();
+
+  const { hasLikedSpot } = useSpots();
 
   const handleMouseDown = (e: React.MouseEvent) => {
     isDragging.current = true;
@@ -114,7 +117,7 @@ const SwipeCard = ({ spot, onSwipe }: SwipeCardProps) => {
         {/* Stats in top right */}
         <div className="absolute top-4 right-4 flex space-x-2">
           <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center space-x-1">
-            <Heart className="w-3 h-3 text-red-500 fill-current" />
+            <Heart className={hasLikedSpot(spot.id) ? "w-3 h-3 text-red-500 fill-current" : "w-3 h-3 text-red-500"} />
             <span className="text-xs font-medium text-gray-800">{spot.likes}</span>
           </div>
           <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center space-x-1">

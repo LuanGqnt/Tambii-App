@@ -24,7 +24,7 @@ const SpotDetail = () => {
   const navigate = useNavigate();
 
   const { id } = useParams<{ id: string }>();
-  const { spots, loading } = useSpots();
+  const { spots, loading, fetchSpots, hasLikedSpot, toggleLike } = useSpots();
   const [spot, setSpot] = useState<SpotData | null>(null);
   const { user, userProfile } = useAuth();
   
@@ -33,6 +33,8 @@ const SpotDetail = () => {
   const [commentsLoading, setCommentsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [liveCommentCount, setLiveCommentCount] = useState<number>(0);
+
+  const [liked, setLiked] = useState<Boolean>(false);
 
   const handleCommentSend = async () => {
     if (!user) return { error: 'User not authenticated' };
@@ -150,6 +152,32 @@ const SpotDetail = () => {
 
     return "Now";
   }
+
+  // overriden
+  // const hasUserLikedSpot = async (userId: string, spotId: string): Promise<boolean> => {
+  //   const { data, error } = await supabase
+  //     .from("likes")
+  //     .select("id")
+  //     .eq("user_id", userId)
+  //     .eq("spot_id", spotId)
+  //     .maybeSingle(); // we only care if one exists
+
+  //   if (error) {
+  //     console.error("Error checking like status:", error);
+  //     setLiked(false);
+  //     return;
+  //   }
+
+  //   setLiked(!!data); // true if a like entry exists
+  // };
+
+  const handleLikeClick = async () => {
+    if(!user) return;
+    if(!spot) return;
+
+    await toggleLike(spot.id);
+    fetchSpots(); 
+  }
   
   useEffect(() => {
     if (!loading && spots.length > 0 && id) {
@@ -169,6 +197,11 @@ const SpotDetail = () => {
     setHasMore(true);
     fetchComments(true);
     setLiveCommentCount(spot.comments);
+
+    if(hasLikedSpot(spot.id))
+      setLiked(true);
+    else
+      setLiked(false);
   }, [spot]);
 
   if (loading) {
@@ -228,8 +261,11 @@ const SpotDetail = () => {
             
             {/* Stats overlay */}
             <div className="absolute top-4 right-4 flex space-x-2">
-              <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center space-x-1">
-                <Heart className="w-3 h-3 text-red-500 fill-current" />
+              <div 
+                className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center space-x-1 cursor-pointer"
+                onClick={handleLikeClick}  
+              >
+                <Heart className={liked ? "w-3 h-3 text-red-500 fill-current" : "w-3 h-3 text-red-500"} />
                 <span className="text-xs font-medium text-gray-800">{spot.likes}</span>
               </div>
               <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center space-x-1">

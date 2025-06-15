@@ -149,13 +149,54 @@ export type Database = {
             referencedColumns: ["id"];
           }
         ];
+      },
+      likes: {
+        Row: {
+          id: number;
+          spot_id: string;
+          user_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: number;
+          spot_id: string;
+          user_id: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: number;
+          spot_id?: string;
+          user_id?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "likes_spot_id_fkey";
+            columns: ["spot_id"];
+            referencedRelation: "spots";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "likes_user_id_fkey";
+            columns: ["user_id"];
+            referencedRelation: "profiles"; // or "users" if referencing auth.users
+            referencedColumns: ["id"];
+          }
+        ];
       }
+
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      toggle_like: {
+        Args: {
+          spot_id_input: string
+          user_id_input: string
+        }
+        Returns: void
+      }
     }
     Enums: {
       [_ in never]: never
