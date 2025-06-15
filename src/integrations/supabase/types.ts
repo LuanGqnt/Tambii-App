@@ -9,6 +9,70 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      comments: {
+        Row: {
+          author: string | null
+          comment: string | null
+          created_at: string | null
+          id: number
+          spot_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          author?: string | null
+          comment?: string | null
+          created_at?: string | null
+          id?: number
+          spot_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          author?: string | null
+          comment?: string | null
+          created_at?: string | null
+          id?: number
+          spot_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_spot_id_fkey"
+            columns: ["spot_id"]
+            isOneToOne: false
+            referencedRelation: "spots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      likes: {
+        Row: {
+          created_at: string | null
+          id: number
+          spot_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          spot_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          spot_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "likes_spot_id_fkey"
+            columns: ["spot_id"]
+            isOneToOne: false
+            referencedRelation: "spots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -36,10 +100,41 @@ export type Database = {
         }
         Relationships: []
       }
+      reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          rating: number
+          spot_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating: number
+          spot_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating?: number
+          spot_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       spots: {
         Row: {
           author: string | null
-          comments: number
+          average_rating: number | null
+          comments: number | null
           created_at: string
           description: string
           id: string
@@ -47,13 +142,15 @@ export type Database = {
           likes: number
           location: string
           name: string
+          review_count: number | null
           tags: string[]
           updated_at: string
           user_id: string
         }
         Insert: {
           author?: string | null
-          comments?: number
+          average_rating?: number | null
+          comments?: number | null
           created_at?: string
           description: string
           id?: string
@@ -61,13 +158,15 @@ export type Database = {
           likes?: number
           location: string
           name: string
+          review_count?: number | null
           tags?: string[]
           updated_at?: string
           user_id: string
         }
         Update: {
           author?: string | null
-          comments?: number
+          average_rating?: number | null
+          comments?: number | null
           created_at?: string
           description?: string
           id?: string
@@ -75,6 +174,7 @@ export type Database = {
           likes?: number
           location?: string
           name?: string
+          review_count?: number | null
           tags?: string[]
           updated_at?: string
           user_id?: string
@@ -109,93 +209,15 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      },
-      comments: {
-        Row: {
-          id: number;
-          spot_id: string; // UUID
-          user_id: string; // UUID (reference to profiles or auth.users)
-          author: string;
-          comment: string;
-          created_at: string;
-        };
-        Insert: {
-          id?: number;
-          spot_id: string;
-          user_id: string;
-          author: string;
-          comment: string;
-          created_at?: string;
-        };
-        Update: {
-          id?: number;
-          spot_id?: string;
-          user_id?: string;
-          author?: string;
-          comment?: string;
-          created_at?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "comments_spot_id_fkey";
-            columns: ["spot_id"];
-            referencedRelation: "spots";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "comments_user_id_fkey";
-            columns: ["user_id"];
-            referencedRelation: "profiles"; // or "users" if you're referencing `auth.users`
-            referencedColumns: ["id"];
-          }
-        ];
-      },
-      likes: {
-        Row: {
-          id: number;
-          spot_id: string;
-          user_id: string;
-          created_at: string;
-        };
-        Insert: {
-          id?: number;
-          spot_id: string;
-          user_id: string;
-          created_at?: string;
-        };
-        Update: {
-          id?: number;
-          spot_id?: string;
-          user_id?: string;
-          created_at?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "likes_spot_id_fkey";
-            columns: ["spot_id"];
-            referencedRelation: "spots";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "likes_user_id_fkey";
-            columns: ["user_id"];
-            referencedRelation: "profiles"; // or "users" if referencing auth.users
-            referencedColumns: ["id"];
-          }
-        ];
       }
-
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
       toggle_like: {
-        Args: {
-          spot_id_input: string
-          user_id_input: string
-        }
-        Returns: void
+        Args: { spot_id_input: string; user_id_input: string }
+        Returns: undefined
       }
     }
     Enums: {

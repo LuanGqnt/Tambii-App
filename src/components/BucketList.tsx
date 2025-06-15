@@ -1,4 +1,4 @@
-import { ArrowLeft, Heart, MapPin, MessageCircle, Trash2 } from "lucide-react";
+import { ArrowLeft, MapPin, MessageCircle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,6 +6,7 @@ import { useBucketList } from "@/hooks/useBucketList";
 import { SpotData } from "@/types/spot";
 import { useNavigate } from "react-router-dom";
 import { useSpots } from "@/hooks/useSpots";
+import RatingStars from "./RatingStars";
 
 interface BucketListProps {
   onBack: () => void;
@@ -143,12 +144,10 @@ const BucketList = ({ onBack }: BucketListProps) => {
                       {/* Stats */}
                       <div className="flex space-x-4 text-xs text-gray-500">
                         <div className="flex items-center space-x-1">
-                          <Heart className={hasLikedSpot(spot.id) ?  "w-3 h-3 text-red-500 fill-current" : "w-3 h-3 text-red-500"} />
-                          <span>{spot.likes}</span>
+                          <RatingStars rating={spot.average_rating || 0} />
                         </div>
                         <div className="flex items-center space-x-1">
-                          <MessageCircle className="w-3 h-3 text-blue-500" />
-                          <span>{spot.comments}</span>
+                          <span>{spot.review_count || 0} reviews</span>
                         </div>
                       </div>
                     </div>
