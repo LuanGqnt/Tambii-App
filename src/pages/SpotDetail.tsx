@@ -7,17 +7,15 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useSpots } from "@/hooks/useSpots";
 import { useAuth } from "@/contexts/AuthContext"; 
 import { SpotData } from "@/types/spot";
-import { supabase } from "@/integrations/supabase/client";
 import RatingStars from "@/components/RatingStars";
 import { useState, useEffect } from "react";
-
-const COMMENTS_LIMIT = 5;
 
 export interface ReviewData {
   id: string;
   user_id: string;
   spot_id: string;
   rating: number;
+  author: string;
   comment: string | null;
   created_at: string;
   updated_at: string;
@@ -71,7 +69,7 @@ const SpotDetail = () => {
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!spot || ratingInput == null) return;
-    await submitReview(spot.id, ratingInput, commentInput);
+    await submitReview(spot.id, userProfile.username, ratingInput, commentInput);
     setShowReviewForm(false);
     setRatingInput(null);
     setCommentInput("");

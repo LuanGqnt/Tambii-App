@@ -83,8 +83,8 @@ const AddSpotForm = ({ onBack, onSuccess }: AddSpotFormProps) => {
       const result = await createSpot({
         ...formData,
         image: imageUrl,
-        likes: 0,
-        comments: 0,
+        review_count: 0,
+        average_rating: 0,
         author: userProfile?.username || 'Anonymous'
       });
 

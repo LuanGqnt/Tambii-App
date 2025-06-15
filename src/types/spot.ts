@@ -6,9 +6,7 @@ export interface SpotData {
   image: string;
   description: string;
   tags: string[];
-  likes: number;
-  comments: number;
   author: string;
-  average_rating?: number; // Add for reviews-based stats
-  review_count?: number;   // Add for reviews-based stats
+  average_rating: number;
+  review_count: number;
 }

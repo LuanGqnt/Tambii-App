@@ -9,70 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      comments: {
-        Row: {
-          author: string | null
-          comment: string | null
-          created_at: string | null
-          id: number
-          spot_id: string | null
-          user_id: string | null
-        }
-        Insert: {
-          author?: string | null
-          comment?: string | null
-          created_at?: string | null
-          id?: number
-          spot_id?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          author?: string | null
-          comment?: string | null
-          created_at?: string | null
-          id?: number
-          spot_id?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "comments_spot_id_fkey"
-            columns: ["spot_id"]
-            isOneToOne: false
-            referencedRelation: "spots"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      likes: {
-        Row: {
-          created_at: string | null
-          id: number
-          spot_id: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: number
-          spot_id?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: number
-          spot_id?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "likes_spot_id_fkey"
-            columns: ["spot_id"]
-            isOneToOne: false
-            referencedRelation: "spots"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -109,6 +45,7 @@ export type Database = {
           spot_id: string
           updated_at: string
           user_id: string
+          author: string
         }
         Insert: {
           comment?: string | null
@@ -118,6 +55,7 @@ export type Database = {
           spot_id: string
           updated_at?: string
           user_id: string
+          author?: string
         }
         Update: {
           comment?: string | null
@@ -127,6 +65,7 @@ export type Database = {
           spot_id?: string
           updated_at?: string
           user_id?: string
+          author?: string
         }
         Relationships: []
       }
@@ -134,12 +73,10 @@ export type Database = {
         Row: {
           author: string | null
           average_rating: number | null
-          comments: number | null
           created_at: string
           description: string
           id: string
           image: string
-          likes: number
           location: string
           name: string
           review_count: number | null
@@ -150,12 +87,10 @@ export type Database = {
         Insert: {
           author?: string | null
           average_rating?: number | null
-          comments?: number | null
           created_at?: string
           description: string
           id?: string
           image: string
-          likes?: number
           location: string
           name: string
           review_count?: number | null
@@ -166,12 +101,10 @@ export type Database = {
         Update: {
           author?: string | null
           average_rating?: number | null
-          comments?: number | null
           created_at?: string
           description?: string
           id?: string
           image?: string
-          likes?: number
           location?: string
           name?: string
           review_count?: number | null
@@ -215,9 +148,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      toggle_like: {
-        Args: { spot_id_input: string; user_id_input: string }
-        Returns: undefined
+      submit_review: {
+        Args: {
+          spot_id_input: string
+          user_id_input: string
+          author_input: string
+          rating_input: number
+          comment_input: string
+        }
+        Returns: void
       }
     }
     Enums: {

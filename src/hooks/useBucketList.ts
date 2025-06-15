@@ -27,8 +27,8 @@ export const useBucketList = () => {
             image,
             description,
             tags,
-            likes,
-            comments,
+            review_count,
+            average_rating,
             author
           )
         `))
@@ -62,8 +62,8 @@ export const useBucketList = () => {
             image: spot.image,
             description: spot.description,
             tags: spot.tags,
-            likes: spot.likes,
-            comments: spot.comments,
+            average_rating: spot.average_rating,
+            review_count: spot.review_count,
             author: spot.author ?? 'Anonymous',
           };
         });

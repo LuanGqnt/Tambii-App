@@ -1,4 +1,3 @@
-
 import { ArrowLeft, MapPin, MessageCircle, Trash2, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";

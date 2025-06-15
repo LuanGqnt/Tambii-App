@@ -2,6 +2,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { SpotData } from '@/types/spot';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect } from 'react';
+import UserProfile from '@/components/UserProfile';
 
 export interface DatabaseSpot {
   id: string;
@@ -11,11 +12,11 @@ export interface DatabaseSpot {
   image: string;
   description: string;
   tags: string[];
-  likes: number;
-  comments: number;
   created_at: string;
   updated_at: string;
   author: string;
+  review_count: number;
+  average_rating: number;
 }
 
 export interface Review {
@@ -26,12 +27,13 @@ export interface Review {
   comment: string | null;
   created_at: string;
   updated_at: string;
+  author: string;
 }
 
 export const useSpots = () => {
   const [spots, setSpots] = useState<SpotData[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const [userReviews, setUserReviews] = useState<Record<string, Review>>({});
   const [reviewsOfSpot, setReviewsOfSpot] = useState<Record<string, Review[]>>({});
 
@@ -100,23 +102,34 @@ export const useSpots = () => {
   // Submit a review (1-5 stars), with comment (optional)
   const submitReview = async (
     spotId: string,
+    author: string,
     rating: number,
     comment: string
   ) => {
     if (!user) return { error: "User not authenticated" };
-    const { data, error } = await supabase
-      .from("reviews")
-      .upsert([
-        {
-          user_id: user.id,
-          spot_id: spotId,
-          rating,
-          comment,
-          updated_at: new Date().toISOString()
-        }
-      ])
-      .select()
-      .single();
+    // const { data, error } = await supabase
+    //   .from("reviews")
+    //   .upsert([
+    //     {
+    //       user_id: user.id,
+    //       spot_id: spotId,
+    //       author,
+    //       rating,
+    //       comment,
+    //       updated_at: new Date().toISOString()
+    //     }
+    //   ])
+    //   .select()
+    //   .single();
+
+    
+    const { data, error } = await supabase.rpc("submit_review", {
+      spot_id_input: spotId,
+      user_id_input: user.id,
+      author_input: author,
+      rating_input: rating,
+      comment_input: comment
+    });
 
     if (error) {
       console.error("Error submitting review:", error);
@@ -127,11 +140,80 @@ export const useSpots = () => {
     await fetchUserReviews();
     await fetchReviewsOfSpot(spotId);
     await fetchSpots();
-    return { data };
   };
+
+
 
   const hasUserReviewed = (spotId: string) => {
     return !!userReviews[spotId];
+  };
+
+  const createSpot = async (spotData: Omit<DatabaseSpot, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'profiles'>) => {
+    if (!user) return { error: 'User not authenticated' };
+
+    try {
+      const { data, error } = await supabase
+        .from('spots')
+        .insert([{
+          ...spotData, 
+          user_id: user.id
+        }])
+        .select()
+        .single();
+        
+      if (error) {
+        console.error('Error creating spot:', error);
+        return { error };
+      }
+
+      // Refresh spots after creating
+      await fetchSpots();
+      return { data };
+    } catch (error) {
+      console.error('Error in createSpot:', error);
+      return { error };
+    }
+  };
+
+   const seedMockData = async () => {
+    if (!user) return;
+
+    const mockSpots = [
+      {
+        name: "Siargao Cloud 9",
+        location: "Siargao Island, Surigao del Norte",
+        image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
+        description: "Perfect surf spot with crystal clear waters and amazing waves. The ultimate chill vibe by the beach.",
+        tags: ["beach", "surf", "tahimik", "aesthetic"],
+        review_count: 0,
+        average_rating: 0,
+        author: "Luan",
+      },
+      {
+        name: "La Union Surfing Break",
+        location: "San Juan, La Union",
+        image: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
+        description: "Epic waves and sunset views. Great for both beginners and pro surfers. Amazing food trucks nearby!",
+        tags: ["surf", "sunset", "food-trip", "vibrant"],
+        review_count: 0,
+        average_rating: 0,
+        author: "Luan",
+      },
+      {
+        name: "Sagada Hanging Coffins",
+        location: "Sagada, Mountain Province",
+        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
+        description: "Mystical mountain views and ancient traditions. Perfect for soul-searching and adventure.",
+        tags: ["mountain", "adventure", "tahimik", "cultural"],
+        review_count: 0,
+        average_rating: 0,
+        author: "Luan",
+      }
+    ];
+
+    for (const spot of mockSpots) {
+      await createSpot(spot);
+    }
   };
 
   useEffect(() => {
@@ -147,6 +229,8 @@ export const useSpots = () => {
     loading,
     fetchSpots,
     userReviews,
+    createSpot,
+    seedMockData,
     fetchUserReviews,
     submitReview,
     hasUserReviewed,
