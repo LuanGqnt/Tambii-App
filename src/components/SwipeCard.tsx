@@ -1,10 +1,10 @@
+
 import { useState, useRef } from "react";
-import { Heart, MessageCircle, MapPin } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SpotData } from "@/types/spot";
 import { useNavigate } from "react-router-dom";
-import { useSpots } from "@/hooks/useSpots";
 import RatingStars from "./RatingStars";
 
 interface SwipeCardProps {
@@ -17,8 +17,6 @@ const SwipeCard = ({ spot, onSwipe }: SwipeCardProps) => {
   const isDragging = useRef(false);
   const startX = useRef(0);
   const navigate = useNavigate();
-
-  const { hasLikedSpot } = useSpots();
 
   const handleMouseDown = (e: React.MouseEvent) => {
     isDragging.current = true;
@@ -68,11 +66,7 @@ const SwipeCard = ({ spot, onSwipe }: SwipeCardProps) => {
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
-    // // Only navigate if we're not dragging and the drag offset is minimal
-    // if (!isDragging.current && Math.abs(dragOffset) < 10) {
-    //   e.preventDefault();
-    //   navigate(`/spot/${spot.id}`);
-    // }
+    // If desired, implement navigation on click
   };
 
   return (

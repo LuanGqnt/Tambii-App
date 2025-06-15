@@ -1,3 +1,4 @@
+
 export interface SpotData {
   id: string;
   name: string;
@@ -8,4 +9,6 @@ export interface SpotData {
   likes: number;
   comments: number;
   author: string;
+  average_rating?: number; // Add for reviews-based stats
+  review_count?: number;   // Add for reviews-based stats
 }

@@ -1,11 +1,11 @@
-import { ArrowLeft, MapPin, MessageCircle, Trash2 } from "lucide-react";
+
+import { ArrowLeft, MapPin, MessageCircle, Trash2, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useBucketList } from "@/hooks/useBucketList";
 import { SpotData } from "@/types/spot";
 import { useNavigate } from "react-router-dom";
-import { useSpots } from "@/hooks/useSpots";
 import RatingStars from "./RatingStars";
 
 interface BucketListProps {
@@ -14,12 +14,11 @@ interface BucketListProps {
 
 const BucketList = ({ onBack }: BucketListProps) => {
   const { bucketList, removeFromBucketList, loading } = useBucketList();
-  const { hasLikedSpot } = useSpots();
 
   const navigate = useNavigate();
 
   const handleRemoveSpot = async (e: React.MouseEvent, spot: SpotData) => {
-    e.stopPropagation(); // Prevent navigation when clicking delete
+    e.stopPropagation();
     await removeFromBucketList(spot);
   };
 
