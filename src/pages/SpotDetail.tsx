@@ -1,5 +1,4 @@
-
-import { ArrowLeft, MapPin, User, Send, Image as ImageIcon, Video } from "lucide-react";
+import { ArrowLeft, MapPin, User, Image as ImageIcon, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSpots } from "@/hooks/useSpots";
 import { useAuth } from "@/contexts/AuthContext"; 
+import { useImageUpload } from "@/hooks/useImageUpload";
 import { SpotData } from "@/types/spot";
 import RatingStars from "@/components/RatingStars";
 import ImageGallery from "@/components/ImageGallery";
@@ -29,6 +29,7 @@ const SpotDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { user, userProfile } = useAuth();
+  const { uploadMultipleImages } = useImageUpload();
   const {
     spots,
     loading,
@@ -99,11 +100,13 @@ const SpotDetail = () => {
     e.preventDefault();
     if (!spot || ratingInput == null) return;
     
-    // For now, we'll create placeholder URLs for the media
-    // In a real app, you'd upload to storage and get URLs
-    const mediaAttachments = selectedMedia.map((file, index) => ({
-      url: mediaPreviews[index],
-      type: file.type.startsWith('video/') ? 'video' as const : 'image' as const
+    // Upload media files to storage
+    const mediaUrls = await uploadMultipleImages(selectedMedia);
+    
+    // Create media attachments with proper URLs
+    const mediaAttachments = mediaUrls.map((url, index) => ({
+      url: url,
+      type: selectedMedia[index]?.type.startsWith('video/') ? 'video' as const : 'image' as const
     }));
 
     await submitReview(spot.id, userProfile.username, ratingInput, commentInput, mediaAttachments);

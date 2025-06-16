@@ -80,9 +80,16 @@ export const useSpots = () => {
     if (!error && Array.isArray(data)) {
       const reviews: Record<string, Review> = {};
       data.forEach((r) => {
+        const mediaAttachments = Array.isArray(r.media_attachments) 
+          ? r.media_attachments.map((item: any) => ({
+              url: typeof item === 'object' && item.url ? item.url : '',
+              type: typeof item === 'object' && (item.type === 'image' || item.type === 'video') ? item.type : 'image' as const
+            }))
+          : [];
+          
         reviews[r.spot_id] = {
           ...r,
-          media_attachments: Array.isArray(r.media_attachments) ? r.media_attachments : []
+          media_attachments: mediaAttachments
         };
       });
       setUserReviews(reviews);
@@ -95,11 +102,21 @@ export const useSpots = () => {
       .select("*")
       .eq("spot_id", spotId)
       .order("created_at", { ascending: false });
+      
     if (!error && Array.isArray(data)) {
-      const reviewsWithMedia = data.map(review => ({
-        ...review,
-        media_attachments: Array.isArray(review.media_attachments) ? review.media_attachments : []
-      }));
+      const reviewsWithMedia = data.map(review => {
+        const mediaAttachments = Array.isArray(review.media_attachments) 
+          ? review.media_attachments.map((item: any) => ({
+              url: typeof item === 'object' && item.url ? item.url : '',
+              type: typeof item === 'object' && (item.type === 'image' || item.type === 'video') ? item.type : 'image' as const
+            }))
+          : [];
+          
+        return {
+          ...review,
+          media_attachments: mediaAttachments
+        };
+      });
       setReviewsOfSpot(prev => ({ ...prev, [spotId]: reviewsWithMedia }));
     }
   };
@@ -127,8 +144,7 @@ export const useSpots = () => {
       return { error };
     }
 
-    // If there are media attachments, we would need to update the review with media
-    // For now, this is a placeholder - in a real app you'd upload files to storage first
+    // Update the review with media attachments
     if (mediaAttachments.length > 0) {
       const { error: updateError } = await supabase
         .from('reviews')

@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useSpots } from "@/hooks/useSpots";
 import { useAuth } from "@/contexts/AuthContext";
+import { useImageUpload } from "@/hooks/useImageUpload";
 
 interface AddSpotFormProps {
   onBack: () => void;
@@ -17,6 +18,7 @@ interface AddSpotFormProps {
 const AddSpotForm = ({ onBack, onSuccess }: AddSpotFormProps) => {
   const { createSpot } = useSpots();
   const { userProfile } = useAuth();
+  const { uploadMultipleImages } = useImageUpload();
   const [formData, setFormData] = useState({
     name: "",
     location: "",
@@ -77,9 +79,13 @@ const AddSpotForm = ({ onBack, onSuccess }: AddSpotFormProps) => {
 
     setIsSubmitting(true);
     try {
-      // For now, we'll use the image object URLs as placeholders
-      // In a real app, you'd upload to storage and get URLs
-      const imageUrls = imagePreviews;
+      // Upload images to Supabase storage
+      const imageUrls = await uploadMultipleImages(selectedImages);
+      
+      if (imageUrls.length === 0) {
+        console.error('Failed to upload images');
+        return;
+      }
       
       const result = await createSpot({
         ...formData,
@@ -249,7 +255,7 @@ const AddSpotForm = ({ onBack, onSuccess }: AddSpotFormProps) => {
               disabled={isSubmitting || !formData.name || !formData.location || !formData.description || selectedImages.length === 0}
               className="w-full bg-tambii-dark hover:bg-tambii-dark/90 text-white rounded-2xl py-3 text-base font-medium"
             >
-              {isSubmitting ? 'Sharing...' : 'Share Spot'}
+              {isSubmitting ? 'Uploading & Sharing...' : 'Share Spot'}
             </Button>
           </form>
         </Card>
