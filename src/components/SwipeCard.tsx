@@ -1,3 +1,4 @@
+
 import { useState, useRef } from "react";
 import { MapPin } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -68,6 +69,9 @@ const SwipeCard = ({ spot, onSwipe }: SwipeCardProps) => {
     // If desired, implement navigation on click
   };
 
+  // Use the first image from the images array
+  const mainImage = spot.images && spot.images.length > 0 ? spot.images[0] : '';
+
   return (
     <Card 
       className={`w-full max-w-sm mx-auto swipe-card cursor-grab active:cursor-grabbing relative overflow-hidden modern-card border-0 shadow-xl rounded-3xl transition-transform duration-200 select-none ${
@@ -100,12 +104,18 @@ const SwipeCard = ({ spot, onSwipe }: SwipeCardProps) => {
 
       {/* Image */}
       <div className="relative h-80 overflow-hidden rounded-t-3xl">
-        <img 
-          src={spot.image} 
-          alt={spot.name}
-          className="w-full h-full object-cover pointer-events-none"
-          draggable={false}
-        />
+        {mainImage ? (
+          <img 
+            src={mainImage} 
+            alt={spot.name}
+            className="w-full h-full object-cover pointer-events-none"
+            draggable={false}
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+            <span className="text-gray-500">No image available</span>
+          </div>
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
         
         {/* Stats in top right */}
@@ -115,6 +125,13 @@ const SwipeCard = ({ spot, onSwipe }: SwipeCardProps) => {
             <span className="text-xs font-medium text-gray-800">{spot.review_count || 0} reviews</span>
           </div>
         </div>
+
+        {/* Image count indicator */}
+        {spot.images && spot.images.length > 1 && (
+          <div className="absolute bottom-4 right-4 bg-black/60 text-white px-2 py-1 rounded-full text-xs">
+            1/{spot.images.length}
+          </div>
+        )}
       </div>
 
       {/* Content */}

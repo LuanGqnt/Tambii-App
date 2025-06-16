@@ -3,7 +3,7 @@ export interface SpotData {
   id: string;
   name: string;
   location: string;
-  image: string;
+  images: string[];
   description: string;
   tags: string[];
   author: string;

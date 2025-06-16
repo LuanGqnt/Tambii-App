@@ -1,3 +1,4 @@
+
 import { ArrowLeft, MapPin, MessageCircle, Trash2, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -77,81 +78,91 @@ const BucketList = ({ onBack }: BucketListProps) => {
             </div>
             
             <div className="grid gap-4">
-              {bucketList.map((spot) => (
-                <Card 
-                  key={spot.id} 
-                  className="modern-card border-0 shadow-lg rounded-2xl overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
-                  onClick={() => handleCardClick(spot)}
-                >
-                  <div className="flex">
-                    {/* Image */}
-                    <div className="w-32 h-32 flex-shrink-0">
-                      <img 
-                        src={spot.image} 
-                        alt={spot.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1 p-4">
-                      <div className="flex justify-between items-start mb-1">
-                        <h3 className="text-lg font-bold text-tambii-dark tracking-tight">
-                          {spot.name}
-                        </h3>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => handleRemoveSpot(e, spot)}
-                          className="h-8 w-8 p-0 rounded-xl hover:bg-red-50 text-red-500 hover:text-red-600"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                      
-                      <div className="flex items-center text-gray-600 mb-2">
-                        <MapPin className="w-3 h-3 mr-1" />
-                        <span className="text-xs">{spot.location}</span>
-                      </div>
-
-                      <p className="text-gray-700 text-sm mb-3 line-clamp-2">
-                        {spot.description}
-                      </p>
-
-                      {/* Tags */}
-                      <div className="flex flex-wrap gap-1 mb-3">
-                        {spot.tags.slice(0, 2).map((tag, index) => (
-                          <Badge 
-                            key={index} 
-                            variant="secondary" 
-                            className="bg-gray-100 text-gray-700 rounded-full px-2 py-0 text-xs"
-                          >
-                            {tag}
-                          </Badge>
-                        ))}
-                        {spot.tags.length > 2 && (
-                          <Badge 
-                            variant="secondary" 
-                            className="bg-gray-100 text-gray-700 rounded-full px-2 py-0 text-xs"
-                          >
-                            +{spot.tags.length - 2}
-                          </Badge>
+              {bucketList.map((spot) => {
+                const mainImage = spot.images && spot.images.length > 0 ? spot.images[0] : '';
+                
+                return (
+                  <Card 
+                    key={spot.id} 
+                    className="modern-card border-0 shadow-lg rounded-2xl overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
+                    onClick={() => handleCardClick(spot)}
+                  >
+                    <div className="flex">
+                      {/* Image */}
+                      <div className="w-32 h-32 flex-shrink-0">
+                        {mainImage ? (
+                          <img 
+                            src={mainImage} 
+                            alt={spot.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                            <span className="text-gray-500 text-xs">No image</span>
+                          </div>
                         )}
                       </div>
 
-                      {/* Stats */}
-                      <div className="flex space-x-4 text-xs text-gray-500">
-                        <div className="flex items-center space-x-1">
-                          <RatingStars rating={spot.average_rating || 0} />
+                      {/* Content */}
+                      <div className="flex-1 p-4">
+                        <div className="flex justify-between items-start mb-1">
+                          <h3 className="text-lg font-bold text-tambii-dark tracking-tight">
+                            {spot.name}
+                          </h3>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => handleRemoveSpot(e, spot)}
+                            className="h-8 w-8 p-0 rounded-xl hover:bg-red-50 text-red-500 hover:text-red-600"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
                         </div>
-                        <div className="flex items-center space-x-1">
-                          <span>{spot.review_count || 0} reviews</span>
+                        
+                        <div className="flex items-center text-gray-600 mb-2">
+                          <MapPin className="w-3 h-3 mr-1" />
+                          <span className="text-xs">{spot.location}</span>
+                        </div>
+
+                        <p className="text-gray-700 text-sm mb-3 line-clamp-2">
+                          {spot.description}
+                        </p>
+
+                        {/* Tags */}
+                        <div className="flex flex-wrap gap-1 mb-3">
+                          {spot.tags.slice(0, 2).map((tag, index) => (
+                            <Badge 
+                              key={index} 
+                              variant="secondary" 
+                              className="bg-gray-100 text-gray-700 rounded-full px-2 py-0 text-xs"
+                            >
+                              {tag}
+                            </Badge>
+                          ))}
+                          {spot.tags.length > 2 && (
+                            <Badge 
+                              variant="secondary" 
+                              className="bg-gray-100 text-gray-700 rounded-full px-2 py-0 text-xs"
+                            >
+                              +{spot.tags.length - 2}
+                            </Badge>
+                          )}
+                        </div>
+
+                        {/* Stats */}
+                        <div className="flex space-x-4 text-xs text-gray-500">
+                          <div className="flex items-center space-x-1">
+                            <RatingStars rating={spot.average_rating || 0} />
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <span>{spot.review_count || 0} reviews</span>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </Card>
-              ))}
+                  </Card>
+                );
+              })}
             </div>
           </>
         )}

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { ArrowLeft, Plus, MapPin, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -36,11 +37,11 @@ const AddSpotForm = ({ onBack, onSuccess }: AddSpotFormProps) => {
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    setSelectedImages(files);
+    setSelectedImages(prev => [...prev, ...files]);
     
-    // Create preview URLs
-    const previews = files.map(file => URL.createObjectURL(file));
-    setImagePreviews(previews);
+    // Create preview URLs for new files
+    const newPreviews = files.map(file => URL.createObjectURL(file));
+    setImagePreviews(prev => [...prev, ...newPreviews]);
   };
 
   const removeImage = (index: number) => {
@@ -76,13 +77,13 @@ const AddSpotForm = ({ onBack, onSuccess }: AddSpotFormProps) => {
 
     setIsSubmitting(true);
     try {
-      // For now, we'll use the first image's object URL as a placeholder
+      // For now, we'll use the image object URLs as placeholders
       // In a real app, you'd upload to storage and get URLs
-      const imageUrl = imagePreviews[0] || '';
+      const imageUrls = imagePreviews;
       
       const result = await createSpot({
         ...formData,
-        image: imageUrl,
+        images: imageUrls,
         review_count: 0,
         average_rating: 0,
         author: userProfile?.username || 'Anonymous'
@@ -154,7 +155,7 @@ const AddSpotForm = ({ onBack, onSuccess }: AddSpotFormProps) => {
             {/* Images */}
             <div>
               <label className="block text-sm font-medium text-tambii-dark mb-2">
-                Images *
+                Images * (You can add multiple images)
               </label>
               <Input
                 type="file"
@@ -162,7 +163,6 @@ const AddSpotForm = ({ onBack, onSuccess }: AddSpotFormProps) => {
                 multiple
                 onChange={handleImageChange}
                 className="rounded-2xl border-gray-200"
-                required={selectedImages.length === 0}
               />
               {imagePreviews.length > 0 && (
                 <div className="mt-3 grid grid-cols-2 gap-3">

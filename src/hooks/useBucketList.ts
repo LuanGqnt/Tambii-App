@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { SpotData } from '@/types/spot';
@@ -24,7 +25,7 @@ export const useBucketList = () => {
             id,
             name,
             location,
-            image,
+            images,
             description,
             tags,
             review_count,
@@ -34,16 +35,6 @@ export const useBucketList = () => {
         `))
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
-
-        // .select(`
-        //   spots!inner (
-        //     *,
-        //     profiles!inner (
-        //       username,
-        //       email
-        //     )
-        //   )
-        // `)
 
       if (error) {
         console.error('Error fetching bucket list:', error);
@@ -55,11 +46,10 @@ export const useBucketList = () => {
         .map(item => {
           const spot = item.spots as DatabaseSpot;
           return {
-            // id: parseInt(spot.id.split('-')[0], 16),
             id: spot.id,
             name: spot.name,
             location: spot.location,
-            image: spot.image,
+            images: spot.images || [],
             description: spot.description,
             tags: spot.tags,
             average_rating: spot.average_rating,

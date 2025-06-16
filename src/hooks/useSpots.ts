@@ -1,15 +1,15 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { SpotData } from '@/types/spot';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect } from 'react';
-import UserProfile from '@/components/UserProfile';
 
 export interface DatabaseSpot {
   id: string;
   user_id: string;
   name: string;
   location: string;
-  image: string;
+  images: string[];
   description: string;
   tags: string[];
   created_at: string;
@@ -28,6 +28,7 @@ export interface Review {
   created_at: string;
   updated_at: string;
   author: string;
+  media_attachments: { url: string; type: 'image' | 'video' }[];
 }
 
 export const useSpots = () => {
@@ -53,12 +54,9 @@ export const useSpots = () => {
         id: spot.id,
         name: spot.name,
         location: spot.location,
-        image: spot.image,
+        images: spot.images || [],
         description: spot.description,
         tags: spot.tags || [],
-        // Use average_rating and review_count instead of likes/comments
-        likes: spot.average_rating || 0,
-        comments: spot.review_count || 0,
         author: spot.author ?? 'Anonymous',
         average_rating: spot.average_rating || 0,
         review_count: spot.review_count || 0,
@@ -82,7 +80,10 @@ export const useSpots = () => {
     if (!error && Array.isArray(data)) {
       const reviews: Record<string, Review> = {};
       data.forEach((r) => {
-        reviews[r.spot_id] = r;
+        reviews[r.spot_id] = {
+          ...r,
+          media_attachments: Array.isArray(r.media_attachments) ? r.media_attachments : []
+        };
       });
       setUserReviews(reviews);
     }
@@ -95,33 +96,23 @@ export const useSpots = () => {
       .eq("spot_id", spotId)
       .order("created_at", { ascending: false });
     if (!error && Array.isArray(data)) {
-      setReviewsOfSpot(prev => ({ ...prev, [spotId]: data }));
+      const reviewsWithMedia = data.map(review => ({
+        ...review,
+        media_attachments: Array.isArray(review.media_attachments) ? review.media_attachments : []
+      }));
+      setReviewsOfSpot(prev => ({ ...prev, [spotId]: reviewsWithMedia }));
     }
   };
 
-  // Submit a review (1-5 stars), with comment (optional)
+  // Submit a review (1-5 stars), with comment (optional) and media attachments
   const submitReview = async (
     spotId: string,
     author: string,
     rating: number,
-    comment: string
+    comment: string,
+    mediaAttachments: { url: string; type: 'image' | 'video' }[] = []
   ) => {
     if (!user) return { error: "User not authenticated" };
-    // const { data, error } = await supabase
-    //   .from("reviews")
-    //   .upsert([
-    //     {
-    //       user_id: user.id,
-    //       spot_id: spotId,
-    //       author,
-    //       rating,
-    //       comment,
-    //       updated_at: new Date().toISOString()
-    //     }
-    //   ])
-    //   .select()
-    //   .single();
-
     
     const { data, error } = await supabase.rpc("submit_review", {
       spot_id_input: spotId,
@@ -136,19 +127,31 @@ export const useSpots = () => {
       return { error };
     }
 
+    // If there are media attachments, we would need to update the review with media
+    // For now, this is a placeholder - in a real app you'd upload files to storage first
+    if (mediaAttachments.length > 0) {
+      const { error: updateError } = await supabase
+        .from('reviews')
+        .update({ media_attachments: mediaAttachments })
+        .eq('spot_id', spotId)
+        .eq('user_id', user.id);
+
+      if (updateError) {
+        console.error("Error updating review with media:", updateError);
+      }
+    }
+
     // Re-fetch reviews and spot info for up-to-date data
     await fetchUserReviews();
     await fetchReviewsOfSpot(spotId);
     await fetchSpots();
   };
 
-
-
   const hasUserReviewed = (spotId: string) => {
     return !!userReviews[spotId];
   };
 
-  const createSpot = async (spotData: Omit<DatabaseSpot, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'profiles'>) => {
+  const createSpot = async (spotData: Omit<DatabaseSpot, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
     if (!user) return { error: 'User not authenticated' };
 
     try {
@@ -175,14 +178,17 @@ export const useSpots = () => {
     }
   };
 
-   const seedMockData = async () => {
+  const seedMockData = async () => {
     if (!user) return;
 
     const mockSpots = [
       {
         name: "Siargao Cloud 9",
         location: "Siargao Island, Surigao del Norte",
-        image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
+        images: [
+          "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
+          "https://images.unsplash.com/photo-1505142468610-359e7d316be0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
+        ],
         description: "Perfect surf spot with crystal clear waters and amazing waves. The ultimate chill vibe by the beach.",
         tags: ["beach", "surf", "tahimik", "aesthetic"],
         review_count: 0,
@@ -192,7 +198,9 @@ export const useSpots = () => {
       {
         name: "La Union Surfing Break",
         location: "San Juan, La Union",
-        image: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
+        images: [
+          "https://images.unsplash.com/photo-1505142468610-359e7d316be0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
+        ],
         description: "Epic waves and sunset views. Great for both beginners and pro surfers. Amazing food trucks nearby!",
         tags: ["surf", "sunset", "food-trip", "vibrant"],
         review_count: 0,
@@ -202,7 +210,9 @@ export const useSpots = () => {
       {
         name: "Sagada Hanging Coffins",
         location: "Sagada, Mountain Province",
-        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
+        images: [
+          "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
+        ],
         description: "Mystical mountain views and ancient traditions. Perfect for soul-searching and adventure.",
         tags: ["mountain", "adventure", "tahimik", "cultural"],
         review_count: 0,

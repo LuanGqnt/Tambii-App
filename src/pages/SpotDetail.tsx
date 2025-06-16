@@ -1,4 +1,5 @@
-import { ArrowLeft, MapPin, User, Send } from "lucide-react";
+
+import { ArrowLeft, MapPin, User, Send, Image as ImageIcon, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,6 +9,8 @@ import { useSpots } from "@/hooks/useSpots";
 import { useAuth } from "@/contexts/AuthContext"; 
 import { SpotData } from "@/types/spot";
 import RatingStars from "@/components/RatingStars";
+import ImageGallery from "@/components/ImageGallery";
+import ReviewMediaGallery from "@/components/ReviewMediaGallery";
 import { useState, useEffect } from "react";
 
 export interface ReviewData {
@@ -19,6 +22,7 @@ export interface ReviewData {
   comment: string | null;
   created_at: string;
   updated_at: string;
+  media_attachments: { url: string; type: 'image' | 'video' }[];
 }
 
 const SpotDetail = () => {
@@ -44,6 +48,8 @@ const SpotDetail = () => {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [ratingInput, setRatingInput] = useState<number | null>(null);
   const [commentInput, setCommentInput] = useState<string>("");
+  const [selectedMedia, setSelectedMedia] = useState<File[]>([]);
+  const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
 
   useEffect(() => {
     if (!loading && spots.length > 0 && id) {
@@ -61,18 +67,51 @@ const SpotDetail = () => {
   useEffect(() => {
     if (!id) return;
     if (reviewsOfSpot[id]) {
-      setReviews(reviewsOfSpot[id]);
+      const reviewsWithMedia = reviewsOfSpot[id].map(review => ({
+        ...review,
+        media_attachments: Array.isArray(review.media_attachments) 
+          ? review.media_attachments 
+          : []
+      }));
+      setReviews(reviewsWithMedia);
     }
   }, [reviewsOfSpot, id]);
+
+  const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    setSelectedMedia(files);
+    
+    // Create preview URLs
+    const previews = files.map(file => URL.createObjectURL(file));
+    setMediaPreviews(previews);
+  };
+
+  const removeMedia = (index: number) => {
+    // Revoke the URL to prevent memory leaks
+    URL.revokeObjectURL(mediaPreviews[index]);
+    
+    setSelectedMedia(prev => prev.filter((_, i) => i !== index));
+    setMediaPreviews(prev => prev.filter((_, i) => i !== index));
+  };
 
   // Submission of user's review
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!spot || ratingInput == null) return;
-    await submitReview(spot.id, userProfile.username, ratingInput, commentInput);
+    
+    // For now, we'll create placeholder URLs for the media
+    // In a real app, you'd upload to storage and get URLs
+    const mediaAttachments = selectedMedia.map((file, index) => ({
+      url: mediaPreviews[index],
+      type: file.type.startsWith('video/') ? 'video' as const : 'image' as const
+    }));
+
+    await submitReview(spot.id, userProfile.username, ratingInput, commentInput, mediaAttachments);
     setShowReviewForm(false);
     setRatingInput(null);
     setCommentInput("");
+    setSelectedMedia([]);
+    setMediaPreviews([]);
     fetchSpots();
     fetchReviewsOfSpot(spot.id);
     fetchUserReviews();
@@ -106,7 +145,6 @@ const SpotDetail = () => {
   }
 
   const userReview = user ? userReviews[spot.id] : null;
-  const canComment = !!userReview;
 
   return (
     <div className="min-h-screen bg-tambii-gray">
@@ -124,23 +162,8 @@ const SpotDetail = () => {
       </header>
 
       <div className="p-6 space-y-6">
-        {/* Main Image */}
-        <Card className="modern-card border-0 shadow-xl rounded-3xl overflow-hidden">
-          <div className="relative h-80">
-            <img 
-              src={spot.image} 
-              alt={spot.name}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-            
-            {/* Ratings overlay */}
-            <div className="absolute top-4 right-4">
-              <RatingStars rating={spot.average_rating || 0} />
-              <span className="text-xs text-gray-700">{spot.review_count || 0} reviews</span>
-            </div>
-          </div>
-        </Card>
+        {/* Image Gallery */}
+        <ImageGallery images={spot.images} spotName={spot.name} />
 
         {/* Spot Information */}
         <Card className="modern-card border-0 shadow-lg rounded-2xl p-6">
@@ -157,6 +180,8 @@ const SpotDetail = () => {
                   <span className="text-sm">Posted by {spot.author}</span>
                 </div>
               )}
+              <RatingStars rating={spot.average_rating || 0} />
+              <span className="ml-2 text-sm text-gray-600">{spot.review_count || 0} reviews</span>
             </div>
 
             <div>
@@ -223,6 +248,49 @@ const SpotDetail = () => {
                 value={commentInput}
                 onChange={e => setCommentInput(e.target.value)}
               />
+              
+              {/* Media Upload */}
+              <div className="mb-3">
+                <label className="block text-sm font-medium text-tambii-dark mb-2">
+                  Add Photos or Videos (optional)
+                </label>
+                <Input
+                  type="file"
+                  accept="image/*,video/*"
+                  multiple
+                  onChange={handleMediaChange}
+                  className="mb-2"
+                />
+                {mediaPreviews.length > 0 && (
+                  <div className="grid grid-cols-3 gap-2">
+                    {mediaPreviews.map((preview, index) => {
+                      const file = selectedMedia[index];
+                      const isVideo = file?.type.startsWith('video/');
+                      
+                      return (
+                        <div key={index} className="relative aspect-square rounded-lg overflow-hidden">
+                          {isVideo ? (
+                            <video src={preview} className="w-full h-full object-cover" muted />
+                          ) : (
+                            <img src={preview} alt={`Preview ${index + 1}`} className="w-full h-full object-cover" />
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => removeMedia(index)}
+                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                          >
+                            ×
+                          </button>
+                          <div className="absolute bottom-1 right-1 bg-black/60 text-white p-1 rounded">
+                            {isVideo ? <Video className="w-3 h-3" /> : <ImageIcon className="w-3 h-3" />}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+              
               <Button type="submit" disabled={ratingInput == null}>Submit Review</Button>
             </form>
           )}
@@ -244,9 +312,12 @@ const SpotDetail = () => {
                         <RatingStars rating={review.rating} />
                         <span className="text-xs text-gray-500">{new Date(review.created_at).toLocaleDateString()}</span>
                       </div>
-                      {review.comment &&
-                        <p className="text-sm text-gray-700">{review.comment}</p>
-                      }
+                      {review.comment && (
+                        <p className="text-sm text-gray-700 mb-2">{review.comment}</p>
+                      )}
+                      {review.media_attachments && review.media_attachments.length > 0 && (
+                        <ReviewMediaGallery mediaAttachments={review.media_attachments} />
+                      )}
                     </div>
                   </div>
                 </div>

@@ -38,36 +38,47 @@ export type Database = {
       }
       reviews: {
         Row: {
+          author: string | null
           comment: string | null
           created_at: string
           id: string
+          media_attachments: Json | null
           rating: number
-          spot_id: string
+          spot_id: string | null
           updated_at: string
-          user_id: string
-          author: string
+          user_id: string | null
         }
         Insert: {
+          author?: string | null
           comment?: string | null
           created_at?: string
           id?: string
+          media_attachments?: Json | null
           rating: number
-          spot_id: string
+          spot_id?: string | null
           updated_at?: string
-          user_id: string
-          author?: string
+          user_id?: string | null
         }
         Update: {
+          author?: string | null
           comment?: string | null
           created_at?: string
           id?: string
+          media_attachments?: Json | null
           rating?: number
-          spot_id?: string
+          spot_id?: string | null
           updated_at?: string
-          user_id?: string
-          author?: string
+          user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "reviews_spot_id_fkey"
+            columns: ["spot_id"]
+            isOneToOne: false
+            referencedRelation: "spots"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       spots: {
         Row: {
@@ -76,7 +87,7 @@ export type Database = {
           created_at: string
           description: string
           id: string
-          image: string
+          images: string[] | null
           location: string
           name: string
           review_count: number | null
@@ -90,7 +101,7 @@ export type Database = {
           created_at?: string
           description: string
           id?: string
-          image: string
+          images?: string[] | null
           location: string
           name: string
           review_count?: number | null
@@ -104,7 +115,7 @@ export type Database = {
           created_at?: string
           description?: string
           id?: string
-          image?: string
+          images?: string[] | null
           location?: string
           name?: string
           review_count?: number | null
@@ -156,7 +167,7 @@ export type Database = {
           rating_input: number
           comment_input: string
         }
-        Returns: void
+        Returns: undefined
       }
     }
     Enums: {
