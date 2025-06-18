@@ -250,7 +250,7 @@ const SpotDetail = () => {
                 </label>
                 <Input
                   type="file"
-                  accept="image/*,video/*"
+                  accept="image/*,video/*,.heic"
                   multiple
                   onChange={handleMediaChange}
                   className="mb-2"

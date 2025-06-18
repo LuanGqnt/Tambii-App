@@ -165,7 +165,7 @@ const AddSpotForm = ({ onBack, onSuccess }: AddSpotFormProps) => {
               </label>
               <Input
                 type="file"
-                accept="image/*"
+                accept="image/*,.heic"
                 multiple
                 onChange={handleImageChange}
                 className="rounded-2xl border-gray-200"

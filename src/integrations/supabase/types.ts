@@ -42,7 +42,7 @@ export type Database = {
           comment: string | null
           created_at: string
           id: string
-          media_attachments: Json | null
+          media_attachments: Json[] | null
           rating: number
           spot_id: string | null
           updated_at: string
@@ -53,7 +53,7 @@ export type Database = {
           comment?: string | null
           created_at?: string
           id?: string
-          media_attachments?: Json | null
+          media_attachments?: Json[] | null
           rating: number
           spot_id?: string | null
           updated_at?: string
@@ -64,7 +64,7 @@ export type Database = {
           comment?: string | null
           created_at?: string
           id?: string
-          media_attachments?: Json | null
+          media_attachments?: Json[] | null
           rating?: number
           spot_id?: string | null
           updated_at?: string
@@ -166,7 +166,7 @@ export type Database = {
           author_input: string
           rating_input: number
           comment_input: string
-          media_attachments_input: {}[]
+          media_attachments_input: Json[]
         }
         Returns: undefined
       }
