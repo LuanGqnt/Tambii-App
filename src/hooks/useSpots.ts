@@ -1,8 +1,8 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { SpotData } from '@/types/spot';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect } from 'react';
+import { useImageUpload } from './useImageUpload';
 
 export interface DatabaseSpot {
   id: string;
@@ -31,12 +31,15 @@ export interface Review {
   media_attachments: { url: string; type: 'image' | 'video' }[];
 }
 
+const MAX_FILE_SIZE_MB = 5;
+
 export const useSpots = () => {
   const [spots, setSpots] = useState<SpotData[]>([]);
   const [loading, setLoading] = useState(true);
   const { user, userProfile } = useAuth();
   const [userReviews, setUserReviews] = useState<Record<string, Review>>({});
   const [reviewsOfSpot, setReviewsOfSpot] = useState<Record<string, Review[]>>({});
+  const { uploadMultipleImages } = useImageUpload();
 
   const fetchSpots = async () => {
     try {
@@ -127,40 +130,41 @@ export const useSpots = () => {
     author: string,
     rating: number,
     comment: string,
-    mediaAttachments: { url: string; type: 'image' | 'video' }[] = []
+    media_attachments: File[]
   ) => {
     if (!user) return { error: "User not authenticated" };
-    
-    const { data, error } = await supabase.rpc("submit_review", {
-      spot_id_input: spotId,
-      user_id_input: user.id,
-      author_input: author,
-      rating_input: rating,
-      comment_input: comment
-    });
 
-    if (error) {
-      console.error("Error submitting review:", error);
-      return { error };
-    }
-
-    // Update the review with media attachments
-    if (mediaAttachments.length > 0) {
-      const { error: updateError } = await supabase
-        .from('reviews')
-        .update({ media_attachments: mediaAttachments })
-        .eq('spot_id', spotId)
-        .eq('user_id', user.id);
-
-      if (updateError) {
-        console.error("Error updating review with media:", updateError);
+    try {
+      // Upload media files to storage
+      const mediaUrls = await uploadMultipleImages(media_attachments);
+      
+      // Create media attachments with proper URLs
+      const mediaAttachments_ = mediaUrls.map((url, index) => ({
+        url: url,
+        type: media_attachments[index]?.type.startsWith('video/') ? 'video' as const : 'image' as const
+      }));
+  
+      const { data, error } = await supabase.rpc("submit_review", {
+        spot_id_input: spotId,
+        user_id_input: user.id,
+        author_input: author,
+        rating_input: rating,
+        comment_input: comment,
+        media_attachments_input: mediaAttachments_,
+      });
+  
+      if (error) {
+        console.error("Error submitting review:", error);
+        return { error };
       }
+  
+      // Re-fetch reviews and spot info for up-to-date data
+      await fetchUserReviews();
+      await fetchReviewsOfSpot(spotId);
+      await fetchSpots();
+    } catch(error) {
+      alert(error);
     }
-
-    // Re-fetch reviews and spot info for up-to-date data
-    await fetchUserReviews();
-    await fetchReviewsOfSpot(spotId);
-    await fetchSpots();
   };
 
   const hasUserReviewed = (spotId: string) => {

@@ -166,6 +166,7 @@ export type Database = {
           author_input: string
           rating_input: number
           comment_input: string
+          media_attachments_input: {}[]
         }
         Returns: undefined
       }

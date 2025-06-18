@@ -99,17 +99,8 @@ const SpotDetail = () => {
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!spot || ratingInput == null) return;
-    
-    // Upload media files to storage
-    const mediaUrls = await uploadMultipleImages(selectedMedia);
-    
-    // Create media attachments with proper URLs
-    const mediaAttachments = mediaUrls.map((url, index) => ({
-      url: url,
-      type: selectedMedia[index]?.type.startsWith('video/') ? 'video' as const : 'image' as const
-    }));
 
-    await submitReview(spot.id, userProfile.username, ratingInput, commentInput, mediaAttachments);
+    await submitReview(spot.id, userProfile.username, ratingInput, commentInput, selectedMedia);
     setShowReviewForm(false);
     setRatingInput(null);
     setCommentInput("");

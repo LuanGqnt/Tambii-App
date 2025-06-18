@@ -1,4 +1,3 @@
-
 import { useState, useRef } from "react";
 import { MapPin } from "lucide-react";
 import { Card } from "@/components/ui/card";
