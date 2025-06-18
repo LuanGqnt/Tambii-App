@@ -42,7 +42,7 @@ const ImageGallery = ({ images, spotName }: ImageGalleryProps) => {
   return (
     <>
       <Card className="modern-card border-0 shadow-xl rounded-3xl overflow-hidden">
-        <div className="relative h-80">
+        <div className="relative h-[35rem]">
           <img 
             src={images[currentImageIndex]} 
             alt={`${spotName} - Image ${currentImageIndex + 1}`}
