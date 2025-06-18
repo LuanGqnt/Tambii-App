@@ -8,19 +8,19 @@ const MAX_FILE_SIZE = 5; //MB
 export const useImageUpload = () => {
   const { user } = useAuth();
 
-  const convertHeicToPng = async (file: File): Promise<File> => {
+  const convertHeicToJpeg = async (file: File): Promise<File> => {
     if (file.type === 'image/heic' || file.name.toLowerCase().endsWith('.heic')) {
       try {
-        console.log('Converting HEIC file to PNG:', file.name);
+        console.log('Converting HEIC file to JPEG:', file.name);
         const convertedBlob = await heic2any({
           blob: file,
-          toType: "image/png",
+          toType: "image/jpeg",
           quality: 0.8
         }) as Blob;
         
-        // Create a new file with PNG extension
-        const newFileName = file.name.replace(/\.heic$/i, '.png');
-        return new File([convertedBlob], newFileName, { type: 'image/png' });
+        // Create a new file with JPEG extension
+        const newFileName = file.name.replace(/\.heic$/i, '.jpeg');
+        return new File([convertedBlob], newFileName, { type: 'image/jpeg' });
       } catch (error) {
         console.error('Error converting HEIC file:', error);
         throw new Error('Failed to convert HEIC image. Please try a different format.');
@@ -33,10 +33,10 @@ export const useImageUpload = () => {
     if (!user) return null;
 
     try {
-      // Convert HEIC to PNG if needed
-      const processedFile = await convertHeicToPng(file);
+      // Convert HEIC to JPEG if needed
+      const processedFile = await convertHeicToJpeg(file);
       
-      const fileName = `${user.id}/${processedFile.name}`;
+      const fileName = `${user.id}/${Date.now()}_${processedFile.name}`;
 
       const { error: uploadError } = await supabase.storage
         .from('images')
@@ -61,7 +61,7 @@ export const useImageUpload = () => {
   const uploadMultipleImages = async (files: File[]): Promise<string[]> => {
     // Convert HEIC files first
     const processedFiles = await Promise.all(
-      files.map(file => convertHeicToPng(file))
+      files.map(file => convertHeicToJpeg(file))
     );
 
     const oversized = processedFiles.filter(file => file.size > MAX_FILE_SIZE * 1024 * 1024);
@@ -77,6 +77,7 @@ export const useImageUpload = () => {
 
   return {
     uploadImage,
-    uploadMultipleImages
+    uploadMultipleImages,
+    convertHeicToJpeg
   };
 };

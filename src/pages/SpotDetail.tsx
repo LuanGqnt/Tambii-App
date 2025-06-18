@@ -29,7 +29,7 @@ const SpotDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { user, userProfile } = useAuth();
-  const { uploadMultipleImages } = useImageUpload();
+  const { uploadMultipleImages, convertHeicToJpeg } = useImageUpload();
   const {
     spots,
     loading,
@@ -78,12 +78,30 @@ const SpotDetail = () => {
     }
   }, [reviewsOfSpot, id]);
 
-  const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMediaChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
+    let convertedFiles = [];
+
+    for (const file of files) {
+      try {
+        let finalFile = file;
+
+        // Only convert HEIC/HEIF images
+        if (file.type === "image/heic" || file.type === "image/heif") {
+          const blob = await convertHeicToJpeg(file); // your async function
+          finalFile = new File([blob], file.name.replace(/\.\w+$/, '.jpeg'), { type: "image/jpeg" });
+        }
+
+        convertedFiles.push(finalFile);
+      } catch (error) {
+        console.error("Error converting file:", file.name, error);
+      }
+    }
+
     setSelectedMedia(files);
     
     // Create preview URLs
-    const previews = files.map(file => URL.createObjectURL(file));
+    const previews = convertedFiles.map(file => URL.createObjectURL(file));
     setMediaPreviews(previews);
   };
 
