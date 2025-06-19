@@ -74,8 +74,45 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, username: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
+    const redirectUrl = `${window.location.origin}/`;    
+
+    username = username.trim();
+
+    // Rule 1: No spaces in the username
+    if (/\s/.test(username)) {
+      return { error: { message: "Username cannot contain spaces." } };
+    }
+
+    // Rule 2: Check if username already exists
+    const { data: existingUsers, error: fetchError } = await supabase
+      .from('profiles')
+      .select('username')
+      .eq('username', username)
+      .limit(1);
+
+    if (fetchError) {
+      return { error: { message: "Failed to validate username. Please try again." } };
+    }
+
+    if (existingUsers && existingUsers.length > 0) {
+      return { error: { message: "Username already taken." } };
+    }
+
+    // Rule 3: Check if email already exists
+    const { data: existingEmails, error: fetchErrorEmail } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('email', email)
+      .limit(1);
+
+    if (fetchErrorEmail) {
+      return { error: { message: "Failed to validate email. Please try again." } };
+    }
+
+    if (existingEmails && existingEmails.length > 0) {
+      return { error: { message: "Email is already taken." } };
+    }
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
