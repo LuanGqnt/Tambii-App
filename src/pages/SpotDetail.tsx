@@ -82,6 +82,11 @@ const SpotDetail = () => {
     const files = Array.from(e.target.files || []);
     let convertedFiles = [];
 
+    if(files.length > 3) {
+      alert("Maximum File is 3!");
+      return;
+    }
+
     for (const file of files) {
       try {
         let finalFile = file;

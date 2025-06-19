@@ -39,6 +39,12 @@ const AddSpotForm = ({ onBack, onSuccess }: AddSpotFormProps) => {
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
+
+    if(files.length > 5) {
+      alert("Maximum File is 5!");
+      return;
+    }
+
     setSelectedImages(prev => [...prev, ...files]);
     
     // Create preview URLs for new files
