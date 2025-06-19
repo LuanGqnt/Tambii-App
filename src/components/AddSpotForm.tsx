@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { ArrowLeft, Plus, MapPin, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { useSpots } from "@/hooks/useSpots";
 import { useAuth } from "@/contexts/AuthContext";
 import { useImageUpload } from "@/hooks/useImageUpload";
+import { useToast } from "@/hooks/use-toast";
 
 interface AddSpotFormProps {
   onBack: () => void;
@@ -29,6 +29,7 @@ const AddSpotForm = ({ onBack, onSuccess }: AddSpotFormProps) => {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [newTag, setNewTag] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -41,7 +42,11 @@ const AddSpotForm = ({ onBack, onSuccess }: AddSpotFormProps) => {
     const files = Array.from(e.target.files || []);
 
     if(files.length > 5) {
-      alert("Maximum File is 5!");
+      toast({
+        title: "Error uploading files",
+        description: "The maximum file cap is 5",
+        variant: "destructive"
+      });
       return;
     }
 

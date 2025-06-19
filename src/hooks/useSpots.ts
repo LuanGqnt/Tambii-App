@@ -3,6 +3,7 @@ import { SpotData } from '@/types/spot';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import { useImageUpload } from './useImageUpload';
+import { useToast } from './use-toast';
 
 export interface DatabaseSpot {
   id: string;
@@ -31,8 +32,6 @@ export interface Review {
   media_attachments: { url: string; type: 'image' | 'video' }[];
 }
 
-const MAX_FILE_SIZE_MB = 5;
-
 export const useSpots = () => {
   const [spots, setSpots] = useState<SpotData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,6 +39,7 @@ export const useSpots = () => {
   const [userReviews, setUserReviews] = useState<Record<string, Review>>({});
   const [reviewsOfSpot, setReviewsOfSpot] = useState<Record<string, Review[]>>({});
   const { uploadMultipleImages } = useImageUpload();
+  const { toast } = useToast();
 
   const fetchSpots = async () => {
     try {
@@ -163,7 +163,11 @@ export const useSpots = () => {
       await fetchReviewsOfSpot(spotId);
       await fetchSpots();
     } catch(error) {
-      alert(error);
+      toast({
+        title: "Error Submitting Review",
+        description: error,
+        variant: "destructive"
+      });
     }
   };
 

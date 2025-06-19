@@ -12,6 +12,7 @@ import RatingStars from "@/components/RatingStars";
 import ImageGallery from "@/components/ImageGallery";
 import ReviewMediaGallery from "@/components/ReviewMediaGallery";
 import { useState, useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 export interface ReviewData {
   id: string;
@@ -52,6 +53,8 @@ const SpotDetail = () => {
   const [selectedMedia, setSelectedMedia] = useState<File[]>([]);
   const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
 
+  const { toast } = useToast();
+
   useEffect(() => {
     if (!loading && spots.length > 0 && id) {
       const foundSpot = spots.find((s) => s.id === id);
@@ -83,7 +86,11 @@ const SpotDetail = () => {
     let convertedFiles = [];
 
     if(files.length > 3) {
-      alert("Maximum File is 3!");
+      toast({
+        title: "Error uploading files",
+        description: "The maximum file cap is 3",
+        variant: "destructive"
+      });
       return;
     }
 
