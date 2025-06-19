@@ -171,6 +171,48 @@ export const useSpots = () => {
     }
   };
 
+  const deleteReview = async (spotId: string) => {
+    if (!user) return { error: "User not authenticated" };
+
+    try {
+      const { error } = await supabase
+        .from('reviews')
+        .delete()
+        .eq('spot_id', spotId)
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error("Error deleting review:", error);
+        toast({
+          title: "Error Deleting Review",
+          description: "Failed to delete your review. Please try again.",
+          variant: "destructive"
+        });
+        return { error };
+      }
+
+      // Re-fetch reviews and spot info for up-to-date data
+      await fetchUserReviews();
+      await fetchReviewsOfSpot(spotId);
+      await fetchSpots();
+
+      toast({
+        title: "Review Deleted",
+        description: "Your review has been successfully deleted.",
+      });
+
+      return { success: true };
+    } catch(error) {
+      console.error("Error in deleteReview:", error);
+      toast({
+        title: "Error Deleting Review",
+        description: "An unexpected error occurred while deleting your review.",
+        variant: "destructive"
+      });
+      return { error };
+    }
+  };
+
   const hasUserReviewed = (spotId: string) => {
     return !!userReviews[spotId];
   };
@@ -267,6 +309,7 @@ export const useSpots = () => {
     seedMockData,
     fetchUserReviews,
     submitReview,
+    deleteReview,
     hasUserReviewed,
     fetchReviewsOfSpot,
     reviewsOfSpot,

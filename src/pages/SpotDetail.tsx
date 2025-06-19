@@ -1,4 +1,4 @@
-import { ArrowLeft, MapPin, User, Image as ImageIcon, Video } from "lucide-react";
+import { ArrowLeft, MapPin, User, Image as ImageIcon, Video, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -37,6 +37,7 @@ const SpotDetail = () => {
     fetchSpots,
     userReviews,
     submitReview,
+    deleteReview,
     hasUserReviewed,
     fetchReviewsOfSpot,
     reviewsOfSpot,
@@ -123,6 +124,15 @@ const SpotDetail = () => {
     
     setSelectedMedia(prev => prev.filter((_, i) => i !== index));
     setMediaPreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleDeleteReview = async () => {
+    if (!spot || !user) return;
+    
+    const confirmed = window.confirm("Are you sure you want to delete your review? This action cannot be undone.");
+    if (!confirmed) return;
+
+    await deleteReview(spot.id);
   };
 
   // Submission of user's review
@@ -238,16 +248,29 @@ const SpotDetail = () => {
             <h3 className="text-lg font-semibold text-tambii-dark">
               Reviews ({reviewCount})
             </h3>
-            {!userReview && user && (
-              <Button
-                onClick={() => setShowReviewForm((s) => !s)}
-                variant="default"
-                size="sm"
-                className="rounded-full"
-              >
-                Leave a Review
-              </Button>
-            )}
+            <div className="flex gap-2">
+              {userReview && (
+                <Button
+                  onClick={handleDeleteReview}
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full text-red-600 border-red-200 hover:bg-red-50"
+                >
+                  <Trash2 className="w-4 h-4 mr-1" />
+                  Delete My Review
+                </Button>
+              )}
+              {!userReview && user && (
+                <Button
+                  onClick={() => setShowReviewForm((s) => !s)}
+                  variant="default"
+                  size="sm"
+                  className="rounded-full"
+                >
+                  Leave a Review
+                </Button>
+              )}
+            </div>
           </div>
           
           {showReviewForm && (
@@ -329,12 +352,24 @@ const SpotDetail = () => {
                       <User className="w-4 h-4 text-gray-500" />
                     </div>
                     <div className="flex-1">
-                      <div className="flex items-center space-x-2 mb-1">
-                        <span className="text-sm font-medium text-tambii-dark">
-                          {review.user_id === user?.id ? "You" : (review.author ?? `User ${idx + 1}`)}
-                        </span>
-                        <RatingStars rating={review.rating} />
-                        <span className="text-xs text-gray-500">{new Date(review.created_at).toLocaleDateString()}</span>
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm font-medium text-tambii-dark">
+                            {review.user_id === user?.id ? "You" : (review.author ?? `User ${idx + 1}`)}
+                          </span>
+                          <RatingStars rating={review.rating} />
+                          <span className="text-xs text-gray-500">{new Date(review.created_at).toLocaleDateString()}</span>
+                        </div>
+                        {review.user_id === user?.id && (
+                          <Button
+                            onClick={handleDeleteReview}
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 p-1 h-auto"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        )}
                       </div>
                       {review.comment && (
                         <p className="text-sm text-gray-700 mb-2">{review.comment}</p>
