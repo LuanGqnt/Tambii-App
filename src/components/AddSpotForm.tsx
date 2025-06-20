@@ -107,6 +107,7 @@ const AddSpotForm = ({ onBack, onSuccess }: AddSpotFormProps) => {
       
       const result = await createSpot({
         ...formData,
+        coordinates: locationCoordinates,
         images: imageUrls,
         review_count: 0,
         average_rating: 0,

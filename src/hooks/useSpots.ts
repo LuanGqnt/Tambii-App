@@ -10,6 +10,7 @@ export interface DatabaseSpot {
   user_id: string;
   name: string;
   location: string;
+  coordinates: [number, number];
   images: string[];
   description: string;
   tags: string[];
@@ -57,6 +58,7 @@ export const useSpots = () => {
         id: spot.id,
         name: spot.name,
         location: spot.location,
+        coordinates: spot.coordinates,
         images: spot.images || [],
         description: spot.description,
         tags: spot.tags || [],
@@ -251,6 +253,7 @@ export const useSpots = () => {
       {
         name: "Siargao Cloud 9",
         location: "Siargao Island, Surigao del Norte",
+        coordinates: [9.8442, 126.1628], // [lat, lng]
         images: [
           "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
           "https://images.unsplash.com/photo-1505142468610-359e7d316be0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
@@ -264,6 +267,7 @@ export const useSpots = () => {
       {
         name: "La Union Surfing Break",
         location: "San Juan, La Union",
+        coordinates: [16.6732, 120.3186],
         images: [
           "https://images.unsplash.com/photo-1505142468610-359e7d316be0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
         ],
@@ -276,6 +280,7 @@ export const useSpots = () => {
       {
         name: "Sagada Hanging Coffins",
         location: "Sagada, Mountain Province",
+        coordinates: [17.0845, 120.9012],
         images: [
           "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
         ],
@@ -287,9 +292,9 @@ export const useSpots = () => {
       }
     ];
 
-    for (const spot of mockSpots) {
-      await createSpot(spot);
-    }
+    // for (const spot of mockSpots) {
+    //   await createSpot(spot);
+    // }
   };
 
   useEffect(() => {

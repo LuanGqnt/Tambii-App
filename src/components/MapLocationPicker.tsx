@@ -1,10 +1,8 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Button } from "@/components/ui/button";
 import { MapPin, X } from 'lucide-react';
-import { Input } from "@/components/ui/input";
 
 interface MapLocationPickerProps {
   onLocationSelect: (location: string, coordinates: [number, number]) => void;
@@ -12,6 +10,8 @@ interface MapLocationPickerProps {
   initialLocation?: string;
   initialCoordinates?: [number, number];
 }
+
+const MAPBOX_TOKEN = 'pk.eyJ1IjoiaW1sdWFuIiwiYSI6ImNtYzRleWNycjBmaDkyam9peGZqdHZsaTEifQ.JPRdolOSAp3lDT2nXc7nQQ'
 
 const MapLocationPicker = ({ 
   onLocationSelect, 
@@ -24,19 +24,17 @@ const MapLocationPicker = ({
   const marker = useRef<mapboxgl.Marker | null>(null);
   const [selectedCoords, setSelectedCoords] = useState<[number, number] | null>(initialCoordinates || null);
   const [locationName, setLocationName] = useState(initialLocation);
-  const [mapboxToken, setMapboxToken] = useState('');
-  const [showTokenInput, setShowTokenInput] = useState(true);
 
   const initializeMap = () => {
-    if (!mapContainer.current || !mapboxToken) return;
+    if (!mapContainer.current || !MAPBOX_TOKEN) return;
 
-    mapboxgl.accessToken = mapboxToken;
+    mapboxgl.accessToken = MAPBOX_TOKEN;
     
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v12',
       center: initialCoordinates || [121.0244, 14.5995], // Default to Manila
-      zoom: 10
+      zoom: 6
     });
 
     map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
@@ -60,7 +58,7 @@ const MapLocationPicker = ({
       // Reverse geocode to get location name
       try {
         const response = await fetch(
-          `https://api.mapbox.com/geocoding/v5/mapbox.places/${coords[0]},${coords[1]}.json?access_token=${mapboxToken}&types=poi,address,place`
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${coords[0]},${coords[1]}.json?access_token=${MAPBOX_TOKEN}&types=poi,address,place`
         );
         const data = await response.json();
         
@@ -82,7 +80,7 @@ const MapLocationPicker = ({
   };
 
   useEffect(() => {
-    if (mapboxToken) {
+    if (MAPBOX_TOKEN) {
       initializeMap();
     }
 
@@ -91,7 +89,7 @@ const MapLocationPicker = ({
         map.current.remove();
       }
     };
-  }, [mapboxToken]);
+  }, [MAPBOX_TOKEN]);
 
   const handleConfirm = () => {
     if (selectedCoords && locationName) {
@@ -99,61 +97,6 @@ const MapLocationPicker = ({
       onClose();
     }
   };
-
-  const handleTokenSubmit = () => {
-    if (mapboxToken.trim()) {
-      setShowTokenInput(false);
-    }
-  };
-
-  if (showTokenInput) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-3xl p-6 m-4 max-w-md w-full">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-tambii-dark">Map Configuration</h3>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="h-8 w-8 p-0 rounded-full"
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
-          
-          <p className="text-sm text-gray-600 mb-4">
-            Please enter your Mapbox public token to use the interactive map. 
-            You can get one from{' '}
-            <a 
-              href="https://mapbox.com/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-tambii-dark underline"
-            >
-              mapbox.com
-            </a>
-          </p>
-          
-          <div className="space-y-4">
-            <Input
-              value={mapboxToken}
-              onChange={(e) => setMapboxToken(e.target.value)}
-              placeholder="pk.eyJ1IjoieW91cnVzZXJuYW1lIiwi..."
-              className="rounded-2xl"
-            />
-            <Button
-              onClick={handleTokenSubmit}
-              disabled={!mapboxToken.trim()}
-              className="w-full bg-tambii-dark hover:bg-tambii-dark/90 rounded-2xl"
-            >
-              Continue to Map
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

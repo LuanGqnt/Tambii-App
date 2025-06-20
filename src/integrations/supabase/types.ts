@@ -89,6 +89,7 @@ export type Database = {
           id: string
           images: string[] | null
           location: string
+          coordinates: [number, number]
           name: string
           review_count: number | null
           tags: string[]
@@ -103,6 +104,7 @@ export type Database = {
           id?: string
           images?: string[] | null
           location: string
+          coordinates?: [number, number]
           name: string
           review_count?: number | null
           tags?: string[]
@@ -117,6 +119,7 @@ export type Database = {
           id?: string
           images?: string[] | null
           location?: string
+          coordinates?: [number, number]
           name?: string
           review_count?: number | null
           tags?: string[]

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, MapPin, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,8 +6,9 @@ import { useNavigate } from "react-router-dom";
 import { useSpots } from "@/hooks/useSpots";
 import { useAuth } from "@/contexts/AuthContext";
 import InteractiveMap from "@/components/InteractiveMap";
+import BottomNavigation from '@/components/BottomNavigation';
 
-const MapView = () => {
+const MapView = ({ activeTab, setActiveTab, handleTabChange }) => {
   const navigate = useNavigate();
   const { spots, loading } = useSpots();
   const { user, userProfile } = useAuth();
@@ -48,7 +48,7 @@ const MapView = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate('/')}
+            onClick={() => handleTabChange('foryou')}
             className="h-10 w-10 p-0 rounded-2xl hover:bg-gray-100"
           >
             <ArrowLeft className="w-5 h-5 text-tambii-dark" />
@@ -72,38 +72,13 @@ const MapView = () => {
       <div className="p-6">
         {/* Interactive Map */}
         <Card className="modern-card border-0 shadow-lg rounded-3xl p-6 mb-6">
-          <div className="h-96">
+          <div className="h-[70vh]">
             <InteractiveMap spots={spots} onSpotClick={handleSpotClick} />
           </div>
         </Card>
-
-        {/* Spots Summary */}
-        <div className="space-y-4">
-          <h2 className="text-xl font-bold text-tambii-dark mb-4">All Spots ({spots.length})</h2>
-          
-          {spots.length === 0 ? (
-            <Card className="modern-card border-0 shadow-lg rounded-2xl p-8 text-center">
-              <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-600 mb-2">No spots available</h3>
-              <p className="text-gray-500 mb-4">
-                Be the first to share a spot with the community!
-              </p>
-              <Button
-                onClick={() => navigate('/')}
-                className="bg-tambii-dark hover:bg-tambii-dark/90 rounded-2xl"
-              >
-                Add a Spot
-              </Button>
-            </Card>
-          ) : (
-            <div className="text-center">
-              <p className="text-gray-600">
-                {spots.filter(spot => spot.coordinates).length} spots have map locations
-              </p>
-            </div>
-          )}
-        </div>
       </div>
+
+      <BottomNavigation activeTab={activeTab} onTabChange={handleTabChange} />
     </div>
   );
 };

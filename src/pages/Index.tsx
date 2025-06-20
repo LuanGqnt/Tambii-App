@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Heart, MapPin, List, User, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -90,7 +89,7 @@ const Index = () => {
 
   // Show MapView when map tab is active
   if (activeTab === 'map') {
-    return <MapView />;
+    return <MapView activeTab={activeTab} setActiveTab={setActiveTab} handleTabChange={handleTabChange} />;
   }
 
   return (
@@ -205,7 +204,7 @@ const Index = () => {
       {/* Floating Add Button */}
       <Button
         onClick={() => setShowAddSpot(true)}
-        className="fixed bottom-24 right-6 w-14 h-14 rounded-full bg-tambii-dark hover:bg-tambii-dark/90 shadow-lg z-20 p-0"
+        className="fixed bottom-5 right-6 w-14 h-14 rounded-full bg-tambii-dark hover:bg-tambii-dark/90 shadow-lg z-20 p-0"
       >
         <Plus className="w-6 h-6 text-white" />
       </Button>
