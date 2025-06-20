@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Heart, MapPin, List, User, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,8 @@ import SwipeCard from "@/components/SwipeCard";
 import BucketList from "@/components/BucketList";
 import UserProfile from "@/components/UserProfile";
 import AddSpotForm from "@/components/AddSpotForm";
+import BottomNavigation from "@/components/BottomNavigation";
+import MapView from "./MapView";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSpots } from "@/hooks/useSpots";
 import { useBucketList } from "@/hooks/useBucketList";
@@ -20,6 +23,7 @@ const Index = () => {
   const [showBucketList, setShowBucketList] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showAddSpot, setShowAddSpot] = useState(false);
+  const [activeTab, setActiveTab] = useState<'foryou' | 'map'>('foryou');
 
   const currentSpot = spots[currentSpotIndex];
 
@@ -42,6 +46,10 @@ const Index = () => {
   const handleAddSpotSuccess = () => {
     setShowAddSpot(false);
     setCurrentSpotIndex(0); // Reset to show new spots
+  };
+
+  const handleTabChange = (tab: 'foryou' | 'map') => {
+    setActiveTab(tab);
   };
 
   if (authLoading || spotsLoading) {
@@ -80,8 +88,13 @@ const Index = () => {
     );
   }
 
+  // Show MapView when map tab is active
+  if (activeTab === 'map') {
+    return <MapView />;
+  }
+
   return (
-    <div className="min-h-screen bg-tambii-gray relative">
+    <div className="min-h-screen bg-tambii-gray relative pb-24">
       {/* Header */}
       <header className="relative z-10 flex items-center justify-between p-6 modern-card mx-4 mt-4 rounded-3xl">
         <div className="flex items-center space-x-3">
@@ -117,13 +130,13 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Main Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-[calc(100vh-140px)] p-6">
+      {/* Main Content - For You Tab */}
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-[calc(100vh-200px)] p-6">
         {currentSpotIndex < spots.length ? (
           <>
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold text-tambii-dark mb-3 tracking-tight">
-                Discover places
+                For You
               </h2>
               <p className="text-gray-600 text-lg">
                 Find your next tambayan
@@ -192,19 +205,13 @@ const Index = () => {
       {/* Floating Add Button */}
       <Button
         onClick={() => setShowAddSpot(true)}
-        className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-tambii-dark hover:bg-tambii-dark/90 shadow-lg z-20 p-0"
+        className="fixed bottom-24 right-6 w-14 h-14 rounded-full bg-tambii-dark hover:bg-tambii-dark/90 shadow-lg z-20 p-0"
       >
         <Plus className="w-6 h-6 text-white" />
       </Button>
 
       {/* Bottom Navigation */}
-      {/* <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-10">
-        <div className="modern-card rounded-full px-6 py-3 shadow-lg">
-          <p className="text-sm text-gray-600 font-medium">
-            ✕ Pass • ♡ Save
-          </p>
-        </div>
-      </div> */}
+      <BottomNavigation activeTab={activeTab} onTabChange={handleTabChange} />
     </div>
   );
 };

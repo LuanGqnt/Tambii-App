@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, Plus, MapPin, X } from "lucide-react";
+import { ArrowLeft, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { useSpots } from "@/hooks/useSpots";
 import { useAuth } from "@/contexts/AuthContext";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { useToast } from "@/hooks/use-toast";
+import LocationPicker from "./LocationPicker";
 
 interface AddSpotFormProps {
   onBack: () => void;
@@ -25,6 +26,7 @@ const AddSpotForm = ({ onBack, onSuccess }: AddSpotFormProps) => {
     description: "",
     tags: [] as string[]
   });
+  const [locationCoordinates, setLocationCoordinates] = useState<[number, number] | null>(null);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [newTag, setNewTag] = useState("");
@@ -36,6 +38,11 @@ const AddSpotForm = ({ onBack, onSuccess }: AddSpotFormProps) => {
       ...prev,
       [field]: value
     }));
+  };
+
+  const handleLocationSelect = (location: string, coordinates?: [number, number]) => {
+    handleInputChange('location', location);
+    setLocationCoordinates(coordinates || null);
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -152,22 +159,11 @@ const AddSpotForm = ({ onBack, onSuccess }: AddSpotFormProps) => {
               />
             </div>
 
-            {/* Location */}
-            <div>
-              <label className="block text-sm font-medium text-tambii-dark mb-2">
-                Location *
-              </label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <Input
-                  value={formData.location}
-                  onChange={(e) => handleInputChange('location', e.target.value)}
-                  placeholder="City, Province or specific address"
-                  className="rounded-2xl border-gray-200 pl-10"
-                  required
-                />
-              </div>
-            </div>
+            {/* Location with LocationPicker */}
+            <LocationPicker
+              onLocationSelect={handleLocationSelect}
+              initialLocation={formData.location}
+            />
 
             {/* Images */}
             <div>
