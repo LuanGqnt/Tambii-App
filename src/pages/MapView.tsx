@@ -2,24 +2,26 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, MapPin, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { useSpots } from "@/hooks/useSpots";
 import { useAuth } from "@/contexts/AuthContext";
-import RatingStars from "@/components/RatingStars";
+import InteractiveMap from "@/components/InteractiveMap";
 
 const MapView = () => {
   const navigate = useNavigate();
   const { spots, loading } = useSpots();
   const { user, userProfile } = useAuth();
-  const [selectedSpot, setSelectedSpot] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) {
       navigate('/auth');
     }
   }, [user, navigate]);
+
+  const handleSpotClick = (spotId: string) => {
+    navigate(`/spot/${spotId}`);
+  };
 
   if (loading) {
     return (
@@ -68,18 +70,14 @@ const MapView = () => {
       </header>
 
       <div className="p-6">
-        {/* Map placeholder - for now showing a list view */}
+        {/* Interactive Map */}
         <Card className="modern-card border-0 shadow-lg rounded-3xl p-6 mb-6">
-          <div className="text-center py-12 border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50">
-            <MapPin className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-600 mb-2">Interactive Map Coming Soon</h3>
-            <p className="text-gray-500">
-              Map integration will be added in the next update. For now, browse spots below.
-            </p>
+          <div className="h-96">
+            <InteractiveMap spots={spots} onSpotClick={handleSpotClick} />
           </div>
         </Card>
 
-        {/* Spots List */}
+        {/* Spots Summary */}
         <div className="space-y-4">
           <h2 className="text-xl font-bold text-tambii-dark mb-4">All Spots ({spots.length})</h2>
           
@@ -98,54 +96,10 @@ const MapView = () => {
               </Button>
             </Card>
           ) : (
-            <div className="grid gap-4">
-              {spots.map((spot) => (
-                <Card 
-                  key={spot.id} 
-                  className="modern-card border-0 shadow-lg rounded-2xl p-4 cursor-pointer hover:shadow-xl transition-shadow"
-                  onClick={() => navigate(`/spot/${spot.id}`)}
-                >
-                  <div className="flex space-x-4">
-                    {/* Image */}
-                    <div className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0">
-                      <img 
-                        src={spot.images[0] || '/placeholder.svg'} 
-                        alt={spot.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-tambii-dark text-lg mb-1 truncate">
-                        {spot.name}
-                      </h3>
-                      <div className="flex items-center text-gray-600 mb-2">
-                        <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
-                        <span className="text-sm truncate">{spot.location}</span>
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <RatingStars rating={spot.average_rating || 0} />
-                          <span className="text-sm text-gray-600">
-                            ({spot.review_count || 0})
-                          </span>
-                        </div>
-                        
-                        {spot.tags.length > 0 && (
-                          <Badge 
-                            variant="secondary" 
-                            className="bg-gray-100 text-gray-700 rounded-full text-xs"
-                          >
-                            {spot.tags[0]}
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              ))}
+            <div className="text-center">
+              <p className="text-gray-600">
+                {spots.filter(spot => spot.coordinates).length} spots have map locations
+              </p>
             </div>
           )}
         </div>
