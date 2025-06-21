@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { ArrowLeft, User, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,7 +21,7 @@ const UserSettings = ({ onBack }: UserSettingsProps) => {
     email: user?.email || '',
   });
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = async (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -32,6 +31,42 @@ const UserSettings = ({ onBack }: UserSettingsProps) => {
   const handleSave = async () => {
     if (!user) return;
 
+    formData.username = formData.username.trim();
+
+    // Rule 1: No spaces in the username
+    if (/\s/.test(formData.username)) {
+      toast({
+        title: "Update error!",
+        description: "Username cannot contain spaces.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Rule 2: Check if username already exists
+    const { data: existingUsers, error: fetchError } = await supabase
+      .from('profiles')
+      .select('username')
+      .eq('username', formData.username)
+      .limit(1);
+
+    if (fetchError) {
+      toast({
+        title: "Update error!",
+        description: "Failed to validate username. Please try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (existingUsers && existingUsers.length > 0) {
+      toast({
+        title: "Update error!",
+        description: "Username already taken."
+      });
+      return;
+    }
+  
     setLoading(true);
     try {
       // Update profile in the profiles table
@@ -49,7 +84,7 @@ const UserSettings = ({ onBack }: UserSettingsProps) => {
 
       toast({
         title: "Profile updated!",
-        description: "Your profile information has been saved successfully."
+        description: "Your profile information has been saved successfully.",
       });
 
       // Refresh the page to show updated data
