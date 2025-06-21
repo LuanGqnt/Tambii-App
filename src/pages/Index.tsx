@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import SwipeCard from "@/components/SwipeCard";
 import BucketList from "@/components/BucketList";
 import UserProfile from "@/components/UserProfile";
+import UserSettings from "@/components/UserSettings";
 import AddSpotForm from "@/components/AddSpotForm";
 import BottomNavigation from "@/components/BottomNavigation";
 import MapView from "./MapView";
@@ -21,6 +22,7 @@ const Index = () => {
   const [currentSpotIndex, setCurrentSpotIndex] = useState(0);
   const [showBucketList, setShowBucketList] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [showAddSpot, setShowAddSpot] = useState(false);
   const [activeTab, setActiveTab] = useState<'foryou' | 'map'>('foryou');
 
@@ -72,8 +74,20 @@ const Index = () => {
     return <AddSpotForm onBack={() => setShowAddSpot(false)} onSuccess={handleAddSpotSuccess} />;
   }
 
+  if (showSettings) {
+    return <UserSettings onBack={() => setShowSettings(false)} />;
+  }
+
   if (showProfile) {
-    return <UserProfile onBack={() => setShowProfile(false)} />;
+    return (
+      <UserProfile 
+        onBack={() => setShowProfile(false)} 
+        onNavigateToSettings={() => {
+          setShowProfile(false);
+          setShowSettings(true);
+        }}
+      />
+    );
   }
 
   if (showBucketList) {

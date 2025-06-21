@@ -84,12 +84,12 @@ export type Database = {
         Row: {
           author: string | null
           average_rating: number | null
+          coordinates: number[] | null
           created_at: string
           description: string
           id: string
           images: string[] | null
           location: string
-          coordinates: [number, number]
           name: string
           review_count: number | null
           tags: string[]
@@ -99,12 +99,12 @@ export type Database = {
         Insert: {
           author?: string | null
           average_rating?: number | null
+          coordinates?: number[] | null
           created_at?: string
           description: string
           id?: string
           images?: string[] | null
           location: string
-          coordinates?: [number, number]
           name: string
           review_count?: number | null
           tags?: string[]
@@ -114,12 +114,12 @@ export type Database = {
         Update: {
           author?: string | null
           average_rating?: number | null
+          coordinates?: number[] | null
           created_at?: string
           description?: string
           id?: string
           images?: string[] | null
           location?: string
-          coordinates?: [number, number]
           name?: string
           review_count?: number | null
           tags?: string[]

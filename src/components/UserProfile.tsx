@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { User, LogOut, Plus } from 'lucide-react';
+import { User, LogOut, Plus, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -10,9 +10,10 @@ import { useToast } from '@/hooks/use-toast';
 
 interface UserProfileProps {
   onBack: () => void;
+  onNavigateToSettings: () => void;
 }
 
-const UserProfile = ({ onBack }: UserProfileProps) => {
+const UserProfile = ({ onBack, onNavigateToSettings }: UserProfileProps) => {
   const { user, userProfile, signOut } = useAuth();
   const { seedMockData } = useSpots();
   const { toast } = useToast();
@@ -59,6 +60,15 @@ const UserProfile = ({ onBack }: UserProfileProps) => {
               {userProfile?.username || 'User'}
             </Badge>
           </div>
+
+          <Button
+            onClick={onNavigateToSettings}
+            variant="outline"
+            className="w-full rounded-2xl py-3 border-tambii-dark text-tambii-dark hover:bg-tambii-dark hover:text-white"
+          >
+            <Settings className="w-4 h-4 mr-2" />
+            Settings
+          </Button>
 
           <Button
             onClick={handleSeedData}
