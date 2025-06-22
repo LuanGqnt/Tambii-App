@@ -9,6 +9,7 @@ import UserSettings from "@/components/UserSettings";
 import AddSpotForm from "@/components/AddSpotForm";
 import BottomNavigation from "@/components/BottomNavigation";
 import MapView from "./MapView";
+import Landing from "./Landing";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSpots } from "@/hooks/useSpots";
 import { useBucketList } from "@/hooks/useBucketList";
@@ -30,7 +31,8 @@ const Index = () => {
 
   useEffect(() => {
     if (!authLoading && !user) {
-      navigate('/auth');
+      // Show landing page instead of redirecting immediately to auth
+      return;
     }
   }, [user, authLoading, navigate]);
 
@@ -66,8 +68,9 @@ const Index = () => {
     );
   }
 
+  // Show landing page if user is not authenticated
   if (!user) {
-    return null;
+    return <Landing />;
   }
 
   if (showAddSpot) {
