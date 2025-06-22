@@ -20,6 +20,8 @@ const UserSettings = ({ onBack }: UserSettingsProps) => {
     username: userProfile?.username || '',
     email: user?.email || '',
   });
+  const [passwordInput, setPasswordInput] = useState<string>("");
+  const [rewritePasswordInput, setRewritePasswordInput] = useState<string>("");
 
   const handleInputChange = async (field: string, value: string) => {
     setFormData(prev => ({
@@ -31,12 +33,39 @@ const UserSettings = ({ onBack }: UserSettingsProps) => {
   const handleSave = async () => {
     if (!user) return;
 
+    // Check if password matches with the second password
+    if(passwordInput !== rewritePasswordInput) {
+      toast({
+        title: "Update error",
+        description: "The password doesn't match",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check if password is correct
+    const user_ = supabase.auth.getUser();
+
+    const { data, error} = await supabase.auth.signInWithPassword({
+      email: formData.email,
+      password: passwordInput,
+    });
+
+    if(error) {
+      toast({
+        title: "Update error",
+        description: "Incorrect password",
+        variant: "destructive",
+      });
+      return;
+    }
+
     formData.username = formData.username.trim();
 
     // Rule 1: No spaces in the username
     if (/\s/.test(formData.username)) {
       toast({
-        title: "Update error!",
+        title: "Update error",
         description: "Username cannot contain spaces.",
         variant: "destructive",
       });
@@ -52,7 +81,7 @@ const UserSettings = ({ onBack }: UserSettingsProps) => {
 
     if (fetchError) {
       toast({
-        title: "Update error!",
+        title: "Update error",
         description: "Failed to validate username. Please try again.",
         variant: "destructive",
       });
@@ -61,8 +90,9 @@ const UserSettings = ({ onBack }: UserSettingsProps) => {
 
     if (existingUsers && existingUsers.length > 0) {
       toast({
-        title: "Update error!",
-        description: "Username already taken."
+        title: "Update error",
+        description: "Username already taken.",
+        variant: "destructive",
       });
       return;
     }
@@ -152,6 +182,34 @@ const UserSettings = ({ onBack }: UserSettingsProps) => {
             <p className="text-sm text-gray-500">
               Email cannot be changed
             </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="password" className="text-tambii-dark font-medium">
+              Password
+            </Label>
+            <Input
+              id="password"
+              type="password"
+              value={passwordInput}
+              onChange={(e) => setPasswordInput(e.target.value)}
+              placeholder="Enter your password"
+              className="rounded-2xl border-gray-200 focus:border-tambii-dark"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="retype_password" className="text-tambii-dark font-medium">
+              Retype Password
+            </Label>
+            <Input
+              id="retype_password"
+              type="password"
+              value={rewritePasswordInput}
+              onChange={(e) => setRewritePasswordInput(e.target.value)}
+              placeholder="Enter your password again"
+              className="rounded-2xl border-gray-200 focus:border-tambii-dark"
+            />
           </div>
 
           <Button
