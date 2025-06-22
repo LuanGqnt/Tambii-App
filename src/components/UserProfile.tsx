@@ -70,14 +70,14 @@ const UserProfile = ({ onBack, onNavigateToSettings }: UserProfileProps) => {
             Settings
           </Button>
 
-          <Button
+          {/* <Button
             onClick={handleSeedData}
             disabled={loading}
             className="w-full bg-green-500 hover:bg-green-600 rounded-2xl py-3"
           >
             <Plus className="w-4 h-4 mr-2" />
             {loading ? 'Adding...' : 'Add Demo Spots'}
-          </Button>
+          </Button> */}
 
           <Button
             onClick={onBack}
