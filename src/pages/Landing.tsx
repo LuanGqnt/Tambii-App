@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { MapPin, Heart, Users, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -114,17 +113,16 @@ const Landing = () => {
         {/* CTA Section */}
         <div className="text-center">
           <Card className="modern-card border-0 shadow-xl rounded-3xl p-12 bg-gradient-to-r from-tambii-dark to-tambii-dark/90">
-            <h3 className="text-3xl font-bold text-white mb-4">
+            <h3 className="text-3xl font-bold text-black mb-4">
               Ready to Start Exploring?
             </h3>
-            <p className="text-white/90 text-lg mb-8 max-w-2xl mx-auto">
+            <p className="text-black/90 text-lg mb-8 max-w-2xl mx-auto">
               Join our community and start discovering amazing places around you.
             </p>
             <Button
               onClick={() => navigate('/auth')}
               size="lg"
-              variant="outline"
-              className="bg-white text-tambii-dark hover:bg-gray-100 rounded-2xl px-8 py-4 text-lg border-white"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-2xl shadow-lg transition duration-200 text-lg"
             >
               Sign Up Now
             </Button>
