@@ -5,7 +5,7 @@ import { MapPin, Search, Map } from "lucide-react";
 import MapLocationPicker from './MapLocationPicker';
 
 interface LocationPickerProps {
-  onLocationSelect: (location: string, coordinates?: [number, number]) => void;
+  onLocationSelect: (location: string, coordinates?: number[]) => void;
   initialLocation?: string;
 }
 
@@ -63,7 +63,7 @@ const LocationPicker = ({ onLocationSelect, initialLocation = "" }: LocationPick
     setShowSuggestions(false);
   };
 
-  const handleMapLocationSelect = (location: string, coordinates: [number, number]) => {
+  const handleMapLocationSelect = (location: string, coordinates: number[]) => {
     setSearchQuery(location);
     onLocationSelect(location, coordinates);
   };

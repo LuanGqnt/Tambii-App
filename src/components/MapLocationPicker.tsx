@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import { MapPin, X } from 'lucide-react';
 
 interface MapLocationPickerProps {
-  onLocationSelect: (location: string, coordinates: [number, number]) => void;
+  onLocationSelect: (location: string, coordinates: number[]) => void;
   onClose: () => void;
   initialLocation?: string;
-  initialCoordinates?: [number, number];
+  initialCoordinates?: number[];
 }
 
 const MAPBOX_TOKEN = 'pk.eyJ1IjoiaW1sdWFuIiwiYSI6ImNtYzRleWNycjBmaDkyam9peGZqdHZsaTEifQ.JPRdolOSAp3lDT2nXc7nQQ'
@@ -22,7 +22,7 @@ const MapLocationPicker = ({
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const marker = useRef<mapboxgl.Marker | null>(null);
-  const [selectedCoords, setSelectedCoords] = useState<[number, number] | null>(initialCoordinates || null);
+  const [selectedCoords, setSelectedCoords] = useState<number[] | null>(initialCoordinates || null);
   const [locationName, setLocationName] = useState(initialLocation);
 
   const initializeMap = () => {
@@ -41,7 +41,7 @@ const MapLocationPicker = ({
 
     // Add click handler to place marker
     map.current.on('click', async (e) => {
-      const coords: [number, number] = [e.lngLat.lng, e.lngLat.lat];
+      const coords: number[] = [e.lngLat.lng, e.lngLat.lat];
       
       // Remove existing marker
       if (marker.current) {

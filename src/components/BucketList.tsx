@@ -1,4 +1,3 @@
-
 import { ArrowLeft, MapPin, MessageCircle, Trash2, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -19,7 +18,7 @@ const BucketList = ({ onBack }: BucketListProps) => {
 
   const handleRemoveSpot = async (e: React.MouseEvent, spot: SpotData) => {
     e.stopPropagation();
-    await removeFromBucketList(spot);
+    await removeFromBucketList(spot.id);
   };
 
   const handleCardClick = (spot: SpotData) => {

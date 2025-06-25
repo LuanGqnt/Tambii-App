@@ -10,7 +10,7 @@ export interface DatabaseSpot {
   user_id: string;
   name: string;
   location: string;
-  coordinates: [number, number];
+  coordinates: number[];
   images: string[];
   description: string;
   tags: string[];

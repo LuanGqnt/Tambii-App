@@ -15,7 +15,7 @@ export const useBucketList = () => {
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from('bucket_list')
+        .from('user_bucket_lists')
         .select(`
           spot_id,
           spots (
@@ -63,7 +63,7 @@ export const useBucketList = () => {
 
     try {
       const { error } = await supabase
-        .from('bucket_list')
+        .from('user_bucket_lists')
         .insert({
           user_id: user.id,
           spot_id: spot.id
@@ -98,7 +98,7 @@ export const useBucketList = () => {
 
     try {
       const { error } = await supabase
-        .from('bucket_list')
+        .from('user_bucket_lists')
         .delete()
         .eq('user_id', user.id)
         .eq('spot_id', spotId);

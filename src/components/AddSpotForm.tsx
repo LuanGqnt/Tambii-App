@@ -26,7 +26,7 @@ const AddSpotForm = ({ onBack, onSuccess }: AddSpotFormProps) => {
     description: "",
     tags: [] as string[]
   });
-  const [locationCoordinates, setLocationCoordinates] = useState<[number, number] | null>(null);
+  const [locationCoordinates, setLocationCoordinates] = useState<number[] | null>(null);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [newTag, setNewTag] = useState("");
@@ -40,7 +40,7 @@ const AddSpotForm = ({ onBack, onSuccess }: AddSpotFormProps) => {
     }));
   };
 
-  const handleLocationSelect = (location: string, coordinates?: [number, number]) => {
+  const handleLocationSelect = (location: string, coordinates?: number[]) => {
     handleInputChange('location', location);
     setLocationCoordinates(coordinates || null);
   };
