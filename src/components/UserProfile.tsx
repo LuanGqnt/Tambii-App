@@ -1,4 +1,5 @@
-import { User, LogOut, Settings } from 'lucide-react';
+
+import { User, LogOut, Settings, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,9 +8,10 @@ import { useAuth } from '@/contexts/AuthContext';
 interface UserProfileProps {
   onBack: () => void;
   onNavigateToSettings: () => void;
+  onNavigateToFeedback: () => void;
 }
 
-const UserProfile = ({ onBack, onNavigateToSettings }: UserProfileProps) => {
+const UserProfile = ({ onBack, onNavigateToSettings, onNavigateToFeedback }: UserProfileProps) => {
   const { user, userProfile, signOut } = useAuth();
 
   const handleSignOut = async () => {
@@ -33,7 +35,6 @@ const UserProfile = ({ onBack, onNavigateToSettings }: UserProfileProps) => {
         </div>
 
         <div className="space-y-4">
-
           <Button
             onClick={onNavigateToSettings}
             variant="outline"
@@ -41,6 +42,15 @@ const UserProfile = ({ onBack, onNavigateToSettings }: UserProfileProps) => {
           >
             <Settings className="w-4 h-4 mr-2" />
             Settings
+          </Button>
+
+          <Button
+            onClick={onNavigateToFeedback}
+            variant="outline"
+            className="w-full rounded-2xl py-3 border-gray-300 text-gray-700 hover:bg-gray-50"
+          >
+            <MessageSquare className="w-4 h-4 mr-2" />
+            Share Feedback
           </Button>
 
           <Button

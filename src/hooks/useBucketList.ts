@@ -1,25 +1,22 @@
-
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { SpotData } from '@/types/spot';
-import { useAuth } from '@/contexts/AuthContext';
-import { DatabaseSpot } from './useSpots';
+import { toast } from '@/hooks/use-toast';
 
 export const useBucketList = () => {
   const [bucketList, setBucketList] = useState<SpotData[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const { user } = useAuth();
 
   const fetchBucketList = async () => {
-    if (!user) {
-      setLoading(false);
-      return;
-    }
+    if (!user) return;
 
+    setLoading(true);
     try {
       const { data, error } = await supabase
-        .from('user_bucket_lists')
-        .select((`
+        .from('bucket_list')
+        .select(`
           spot_id,
           spots (
             id,
@@ -28,124 +25,100 @@ export const useBucketList = () => {
             images,
             description,
             tags,
-            review_count,
             average_rating,
-            author
+            review_count,
+            author,
+            coordinates
           )
-        `))
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        `)
+        .eq('user_id', user.id);
 
-      if (error) {
-        console.error('Error fetching bucket list:', error);
-        return;
-      }
+      if (error) throw error;
 
-      const formattedSpots: SpotData[] = (data || [])
-        .filter(item => item.spots) // Filter out any null spots
-        .map(item => {
-          const spot = item.spots as DatabaseSpot;
-          return {
-            id: spot.id,
-            name: spot.name,
-            location: spot.location,
-            images: spot.images || [],
-            description: spot.description,
-            tags: spot.tags,
-            average_rating: spot.average_rating,
-            review_count: spot.review_count,
-            author: spot.author ?? 'Anonymous',
-          };
-        });
-
-      setBucketList(formattedSpots);
+      const spots = data?.map(item => ({
+        ...item.spots,
+        // Add default coordinates if missing
+        coordinates: item.spots.coordinates || [0, 0]
+      })) || [];
+      
+      setBucketList(spots);
     } catch (error) {
-      console.error('Error in fetchBucketList:', error);
+      console.error('Error fetching bucket list:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch your saved spots",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchBucketList();
+  }, [user]);
+
   const addToBucketList = async (spot: SpotData) => {
-    if (!user) return { error: 'User not authenticated' };
+    if (!user) return;
 
     try {
-      // Convert the numeric ID back to UUID format for database lookup
-      const { data: spotData, error: spotError } = await supabase
-        .from('spots')
-        .select('id')
-        .eq('name', spot.name)
-        .eq('location', spot.location)
-        .single();
-
-      if (spotError || !spotData) {
-        console.error('Error finding spot:', spotError);
-        return { error: 'Spot not found' };
-      }
-
       const { error } = await supabase
-        .from('user_bucket_lists')
-        .insert([{
+        .from('bucket_list')
+        .insert({
           user_id: user.id,
-          spot_id: spotData.id
-        }]);
+          spot_id: spot.id
+        });
 
-      if (error) {
+      if (error) throw error;
+
+      setBucketList(prev => [...prev, spot]);
+      toast({
+        title: "Added to bucket list!",
+        description: `${spot.name} has been saved to your places.`
+      });
+    } catch (error: any) {
+      if (error.code === '23505') {
+        toast({
+          title: "Already saved",
+          description: "This spot is already in your bucket list"
+        });
+      } else {
         console.error('Error adding to bucket list:', error);
-        return { error };
+        toast({
+          title: "Error",
+          description: "Failed to add spot to bucket list",
+          variant: "destructive"
+        });
       }
-
-      // Refresh bucket list
-      await fetchBucketList();
-      return { success: true };
-    } catch (error) {
-      console.error('Error in addToBucketList:', error);
-      return { error };
     }
   };
 
-  const removeFromBucketList = async (spot: SpotData) => {
-    if (!user) return { error: 'User not authenticated' };
+  const removeFromBucketList = async (spotId: string) => {
+    if (!user) return;
 
     try {
-      // Convert the numeric ID back to UUID format for database lookup
-      const { data: spotData, error: spotError } = await supabase
-        .from('spots')
-        .select('id')
-        .eq('name', spot.name)
-        .eq('location', spot.location)
-        .single();
-
-      if (spotError || !spotData) {
-        console.error('Error finding spot:', spotError);
-        return { error: 'Spot not found' };
-      }
-
       const { error } = await supabase
-        .from('user_bucket_lists')
+        .from('bucket_list')
         .delete()
         .eq('user_id', user.id)
-        .eq('spot_id', spotData.id);
+        .eq('spot_id', spotId);
 
-      if (error) {
-        console.error('Error removing from bucket list:', error);
-        return { error };
-      }
+      if (error) throw error;
 
-      // Refresh bucket list
-      fetchBucketList();
-      return { success: true };
+      setBucketList(prev => prev.filter(spot => spot.id !== spotId));
+      toast({
+        title: "Removed from bucket list",
+        description: "Spot has been removed from your saved places."
+      });
     } catch (error) {
-      console.error('Error in removeFromBucketList:', error);
-      return { error };
+      console.error('Error removing from bucket list:', error);
+      toast({
+        title: "Error",
+        description: "Failed to remove spot from bucket list",
+        variant: "destructive"
+      });
     }
   };
-
-  useEffect(() => {
-    if (user) {
-      fetchBucketList();
-    }
-  }, [user]);
 
   return {
     bucketList,
