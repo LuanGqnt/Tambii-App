@@ -1,10 +1,11 @@
-
 import { useState } from 'react';
 import { MessageSquare, Send, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface FeedbackFormProps {
   onBack: () => void;
@@ -13,6 +14,8 @@ interface FeedbackFormProps {
 const FeedbackForm = ({ onBack }: FeedbackFormProps) => {
   const [feedback, setFeedback] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { user, userProfile } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,16 +31,37 @@ const FeedbackForm = ({ onBack }: FeedbackFormProps) => {
 
     setIsSubmitting(true);
     
-    // Simulate API call
-    setTimeout(() => {
+    const feedbackData = {
+      user_id: user.id,
+      author: userProfile.username,
+      feedback: feedback,
+    }
+
+    const { data, error } = await supabase
+      .from('feedbacks')
+      .insert(feedbackData)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating spot:', error);
       toast({
-        title: "Feedback submitted!",
-        description: "Thank you for helping us improve Tambii."
+        title: "Error",
+        description: "There was an error sending your feedback",
+        variant: "destructive"
       });
-      setFeedback('');
-      setIsSubmitting(false);
-      onBack();
-    }, 1000);
+      return { error };
+    }
+
+    toast({
+      title: "Feedback submitted!",
+      description: "Thank you for helping us improve Tambii."
+    });
+
+    console.log("Salamat sa feedback mo kaibigan");
+    setFeedback('');
+    setIsSubmitting(false);
+    onBack();
   };
 
   return (

@@ -79,6 +79,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      },
+      feedbacks: {
+        Row: {
+          id: string
+          feedback: string
+          author: string
+          created_at: string
+          user_id: string | null
+        }
+        Insert: {
+          id?: string
+          feedback?: string
+          author?: string
+          created_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          id?: string
+          feedback?: string
+          author?: string
+          created_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
       }
       spots: {
         Row: {
