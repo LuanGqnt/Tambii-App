@@ -9,40 +9,110 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      feedbacks: {
+        Row: {
+          author: string
+          created_at: string
+          feedback: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          author: string
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          author?: string
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      payment_history: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          paid_at: string | null
+          payment_method: string | null
+          status: string
+          subscription_id: string | null
+          user_id: string
+          xendit_invoice_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          paid_at?: string | null
+          payment_method?: string | null
+          status: string
+          subscription_id?: string | null
+          user_id: string
+          xendit_invoice_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          paid_at?: string | null
+          payment_method?: string | null
+          status?: string
+          subscription_id?: string | null
+          user_id?: string
+          xendit_invoice_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_history_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
           created_at: string
           email: string | null
           id: string
+          tier: string | null
           updated_at: string
           username: string | null
-          tier: string | null
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
           email?: string | null
           id: string
+          tier?: string | null
           updated_at?: string
           username?: string | null
-          tier?: string | null
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
           email?: string | null
           id?: string
+          tier?: string | null
           updated_at?: string
           username?: string | null
-          tier?: string | null
         }
         Relationships: []
       }
       reviews: {
         Row: {
           author: string | null
-          user_tier: string | null
           comment: string | null
           created_at: string
           id: string
@@ -51,10 +121,10 @@ export type Database = {
           spot_id: string | null
           updated_at: string
           user_id: string | null
+          user_tier: string | null
         }
         Insert: {
           author?: string | null
-          user_tier?: string | null
           comment?: string | null
           created_at?: string
           id?: string
@@ -63,10 +133,10 @@ export type Database = {
           spot_id?: string | null
           updated_at?: string
           user_id?: string | null
+          user_tier?: string | null
         }
         Update: {
           author?: string | null
-          user_tier?: string | null
           comment?: string | null
           created_at?: string
           id?: string
@@ -75,6 +145,7 @@ export type Database = {
           spot_id?: string | null
           updated_at?: string
           user_id?: string | null
+          user_tier?: string | null
         }
         Relationships: [
           {
@@ -85,37 +156,12 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      },
-      feedbacks: {
-        Row: {
-          id: string
-          feedback: string
-          author: string
-          created_at: string
-          user_id: string | null
-        }
-        Insert: {
-          id?: string
-          feedback?: string
-          author?: string
-          created_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          id?: string
-          feedback?: string
-          author?: string
-          created_at?: string
-          user_id?: string | null
-        }
-        Relationships: []
       }
       spots: {
         Row: {
           author: string | null
           average_rating: number | null
           coordinates: number[] | null
-          user_tier: string | null
           created_at: string
           description: string
           id: string
@@ -126,12 +172,12 @@ export type Database = {
           tags: string[]
           updated_at: string
           user_id: string
+          user_tier: string | null
         }
         Insert: {
           author?: string | null
           average_rating?: number | null
           coordinates?: number[] | null
-          user_tier?: string | null
           created_at?: string
           description: string
           id?: string
@@ -142,12 +188,12 @@ export type Database = {
           tags?: string[]
           updated_at?: string
           user_id: string
+          user_tier?: string | null
         }
         Update: {
           author?: string | null
           average_rating?: number | null
           coordinates?: number[] | null
-          user_tier?: string | null
           created_at?: string
           description?: string
           id?: string
@@ -158,6 +204,49 @@ export type Database = {
           tags?: string[]
           updated_at?: string
           user_id?: string
+          user_tier?: string | null
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          amount: number
+          billing_cycle: string
+          created_at: string
+          currency: string
+          id: string
+          next_billing_date: string | null
+          plan_name: string
+          status: string
+          updated_at: string
+          user_id: string
+          xendit_subscription_id: string | null
+        }
+        Insert: {
+          amount?: number
+          billing_cycle?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          next_billing_date?: string | null
+          plan_name?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          xendit_subscription_id?: string | null
+        }
+        Update: {
+          amount?: number
+          billing_cycle?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          next_billing_date?: string | null
+          plan_name?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          xendit_subscription_id?: string | null
         }
         Relationships: []
       }
