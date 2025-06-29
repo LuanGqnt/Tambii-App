@@ -40,7 +40,10 @@ const Index = () => {
 
   const handleSwipe = async (direction: 'left' | 'right') => {
     if (direction === 'right' && currentSpot) {
-      await addToBucketList(currentSpot);
+      const error = await addToBucketList(currentSpot);
+
+      if(error)
+        return;
     }
     
     setTimeout(() => {
@@ -116,7 +119,7 @@ const Index = () => {
 
   // Show MapView when map tab is active
   if (activeTab === 'map') {
-    return <MapView activeTab={activeTab} setActiveTab={setActiveTab} handleTabChange={handleTabChange} />;
+    return <MapView activeTab={activeTab} handleTabChange={handleTabChange} />;
   }
 
   return (

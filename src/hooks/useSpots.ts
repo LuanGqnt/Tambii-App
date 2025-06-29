@@ -11,6 +11,7 @@ export interface DatabaseSpot {
   name: string;
   location: string;
   coordinates: number[];
+  user_tier: string;
   images: string[];
   description: string;
   tags: string[];
@@ -25,6 +26,7 @@ export interface Review {
   id: string;
   user_id: string;
   spot_id: string;
+  user_tier: string;
   rating: number;
   comment: string | null;
   created_at: string;
@@ -59,6 +61,7 @@ export const useSpots = () => {
         name: spot.name,
         location: spot.location,
         coordinates: spot.coordinates,
+        user_tier: spot.user_tier,
         images: spot.images || [],
         description: spot.description,
         tags: spot.tags || [],
@@ -130,6 +133,7 @@ export const useSpots = () => {
   const submitReview = async (
     spotId: string,
     author: string,
+    user_tier: string,
     rating: number,
     comment: string,
     media_attachments: File[]
@@ -149,6 +153,7 @@ export const useSpots = () => {
       const { data, error } = await supabase.rpc("submit_review", {
         spot_id_input: spotId,
         user_id_input: user.id,
+        user_tier_input: user_tier,
         author_input: author,
         rating_input: rating,
         comment_input: comment,
@@ -227,7 +232,8 @@ export const useSpots = () => {
         .from('spots')
         .insert([{
           ...spotData, 
-          user_id: user.id
+          user_id: user.id,
+          user_tier: userProfile.tier,
         }])
         .select()
         .single();
@@ -246,57 +252,6 @@ export const useSpots = () => {
     }
   };
 
-  const seedMockData = async () => {
-    if (!user) return;
-
-    const mockSpots = [
-      {
-        name: "Siargao Cloud 9",
-        location: "Siargao Island, Surigao del Norte",
-        coordinates: [9.8442, 126.1628], // [lat, lng]
-        images: [
-          "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
-          "https://images.unsplash.com/photo-1505142468610-359e7d316be0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
-        ],
-        description: "Perfect surf spot with crystal clear waters and amazing waves. The ultimate chill vibe by the beach.",
-        tags: ["beach", "surf", "tahimik", "aesthetic"],
-        review_count: 0,
-        average_rating: 0,
-        author: "Luan",
-      },
-      {
-        name: "La Union Surfing Break",
-        location: "San Juan, La Union",
-        coordinates: [16.6732, 120.3186],
-        images: [
-          "https://images.unsplash.com/photo-1505142468610-359e7d316be0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
-        ],
-        description: "Epic waves and sunset views. Great for both beginners and pro surfers. Amazing food trucks nearby!",
-        tags: ["surf", "sunset", "food-trip", "vibrant"],
-        review_count: 0,
-        average_rating: 0,
-        author: "Luan",
-      },
-      {
-        name: "Sagada Hanging Coffins",
-        location: "Sagada, Mountain Province",
-        coordinates: [17.0845, 120.9012],
-        images: [
-          "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
-        ],
-        description: "Mystical mountain views and ancient traditions. Perfect for soul-searching and adventure.",
-        tags: ["mountain", "adventure", "tahimik", "cultural"],
-        review_count: 0,
-        average_rating: 0,
-        author: "Luan",
-      }
-    ];
-
-    // for (const spot of mockSpots) {
-    //   await createSpot(spot);
-    // }
-  };
-
   useEffect(() => {
     fetchSpots();
     if (user) {
@@ -311,7 +266,6 @@ export const useSpots = () => {
     fetchSpots,
     userReviews,
     createSpot,
-    seedMockData,
     fetchUserReviews,
     submitReview,
     deleteReview,

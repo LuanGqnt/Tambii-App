@@ -84,6 +84,9 @@ const BucketList = ({ onBack }: BucketListProps) => {
                   <Card 
                     key={spot.id} 
                     className="modern-card border-0 shadow-lg rounded-2xl overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
+                    style={{
+                      background: spot.user_tier === 'premium' ? 'linear-gradient(135deg, #fdf6e3, #f5d67b)' : '#fff',
+                    }}
                     onClick={() => handleCardClick(spot)}
                   >
                     <div className="flex">
@@ -134,6 +137,9 @@ const BucketList = ({ onBack }: BucketListProps) => {
                               key={index} 
                               variant="secondary" 
                               className="bg-gray-100 text-gray-700 rounded-full px-2 py-0 text-xs"
+                              style={{
+                                background: spot.user_tier === 'premium' ? 'linear-gradient(184deg, #f7eac6, #f5d67b)' : '',
+                              }}
                             >
                               {tag}
                             </Badge>

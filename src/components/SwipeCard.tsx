@@ -73,11 +73,13 @@ const SwipeCard = ({ spot, onSwipe }: SwipeCardProps) => {
 
   return (
     <Card 
-      className={`w-full max-w-sm mx-auto swipe-card cursor-grab active:cursor-grabbing relative overflow-hidden modern-card border-0 shadow-xl rounded-3xl transition-transform duration-200 select-none ${
+      className={`w-full bg-col max-w-sm mx-auto swipe-card cursor-grab active:cursor-grabbing relative overflow-hidden modern-card border-0 shadow-xl rounded-3xl transition-transform duration-200 select-none ${
         dragOffset > 50 ? 'bg-green-50' : dragOffset < -50 ? 'bg-red-50' : ''
       }`}
       style={{
-        transform: `translateX(${dragOffset}px) rotate(${dragOffset * 0.1}deg)`,
+        transform: `translateX(${dragOffset}px) rotate(${dragOffset * 0.1}deg)`, 
+        background: spot.user_tier === 'premium' ? 'linear-gradient(135deg, #fdf6e3, #f5d67b)' : '#fff',
+        boxShadow: spot.user_tier === 'premium' ? '0 0 12px 4px rgba(255, 215, 0, 0.4)' : ''
       }}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}

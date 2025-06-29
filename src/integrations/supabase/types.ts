@@ -17,6 +17,7 @@ export type Database = {
           id: string
           updated_at: string
           username: string | null
+          tier: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -25,6 +26,7 @@ export type Database = {
           id: string
           updated_at?: string
           username?: string | null
+          tier?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -33,12 +35,14 @@ export type Database = {
           id?: string
           updated_at?: string
           username?: string | null
+          tier?: string | null
         }
         Relationships: []
       }
       reviews: {
         Row: {
           author: string | null
+          user_tier: string | null
           comment: string | null
           created_at: string
           id: string
@@ -50,6 +54,7 @@ export type Database = {
         }
         Insert: {
           author?: string | null
+          user_tier?: string | null
           comment?: string | null
           created_at?: string
           id?: string
@@ -61,6 +66,7 @@ export type Database = {
         }
         Update: {
           author?: string | null
+          user_tier?: string | null
           comment?: string | null
           created_at?: string
           id?: string
@@ -109,6 +115,7 @@ export type Database = {
           author: string | null
           average_rating: number | null
           coordinates: number[] | null
+          user_tier: string | null
           created_at: string
           description: string
           id: string
@@ -124,6 +131,7 @@ export type Database = {
           author?: string | null
           average_rating?: number | null
           coordinates?: number[] | null
+          user_tier?: string | null
           created_at?: string
           description: string
           id?: string
@@ -139,6 +147,7 @@ export type Database = {
           author?: string | null
           average_rating?: number | null
           coordinates?: number[] | null
+          user_tier?: string | null
           created_at?: string
           description?: string
           id?: string
@@ -190,6 +199,7 @@ export type Database = {
         Args: {
           spot_id_input: string
           user_id_input: string
+          user_tier_input: string
           author_input: string
           rating_input: number
           comment_input: string

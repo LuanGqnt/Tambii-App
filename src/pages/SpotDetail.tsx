@@ -20,17 +20,21 @@ export interface ReviewData {
   spot_id: string;
   rating: number;
   author: string;
+  user_tier: string;
   comment: string | null;
   created_at: string;
   updated_at: string;
   media_attachments: { url: string; type: 'image' | 'video' }[];
 }
 
+const FILE_CAP = 3;
+const FILE_CAP_PREMIUM = 10;
+
 const SpotDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { user, userProfile } = useAuth();
-  const { uploadMultipleImages, convertHeicToJpeg } = useImageUpload();
+  const { convertHeicToJpeg } = useImageUpload();
   const {
     spots,
     loading,
@@ -38,7 +42,6 @@ const SpotDetail = () => {
     userReviews,
     submitReview,
     deleteReview,
-    hasUserReviewed,
     fetchReviewsOfSpot,
     reviewsOfSpot,
     fetchUserReviews
@@ -86,13 +89,24 @@ const SpotDetail = () => {
     const files = Array.from(e.target.files || []);
     let convertedFiles = [];
 
-    if(files.length > 3) {
-      toast({
-        title: "Error uploading files",
-        description: "The maximum file cap is 3",
-        variant: "destructive"
-      });
-      return;
+    if(userProfile.tier === "premium") {
+      if(files.length > FILE_CAP_PREMIUM) {
+        toast({
+          title: "Error uploading files",
+          description: `The maximum file cap is ${FILE_CAP_PREMIUM}.`,
+          variant: "destructive"
+        });
+        return;
+      }
+    } else {
+      if(files.length > FILE_CAP) {
+        toast({
+          title: "Error uploading files",
+          description: `The maximum file cap is ${FILE_CAP}. Subscribe sa astig na premium para maging 10!`,
+          variant: "destructive"
+        });
+        return;
+      }
     }
 
     for (const file of files) {
@@ -140,7 +154,7 @@ const SpotDetail = () => {
     e.preventDefault();
     if (!spot || ratingInput == null) return;
 
-    await submitReview(spot.id, userProfile.username, ratingInput, commentInput, selectedMedia);
+    await submitReview(spot.id, userProfile.username, userProfile.tier, ratingInput, commentInput, selectedMedia);
     setShowReviewForm(false);
     setRatingInput(null);
     setCommentInput("");
@@ -200,7 +214,12 @@ const SpotDetail = () => {
         <ImageGallery images={spot.images} spotName={spot.name} />
 
         {/* Spot Information */}
-        <Card className="modern-card border-0 shadow-lg rounded-2xl p-6">
+        <Card 
+          className="modern-card border-0 shadow-lg rounded-2xl p-6"
+          style={{
+            background: spot.user_tier === 'premium' ? 'linear-gradient(135deg, #fdf6e3, #f5d67b)' : '#fff',
+          }}
+        >
           <div className="space-y-4">
             <div>
               <h2 className="text-3xl font-bold text-tambii-dark mb-3 tracking-tight">{spot.name}</h2>
@@ -233,6 +252,9 @@ const SpotDetail = () => {
                     key={index} 
                     variant="secondary" 
                     className="bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-full px-3 py-1 text-sm font-medium"
+                    style={{
+                      background: spot.user_tier === 'premium' ? 'linear-gradient(184deg, #f7eac6, #f5d67b)' : '',
+                    }}
                   >
                     {tag}
                   </Badge>
@@ -346,19 +368,32 @@ const SpotDetail = () => {
           <div className="space-y-4">
             {reviews.length > 0 ? (
               reviews.map((review, idx) => (
-                <div key={review.id || idx} className="border-b border-gray-100 pb-4 last:border-b-0">
+                <div
+                  key={review.id || idx}
+                  className={`border-b border-gray-100 pb-4 last:border-b-0 relative rounded-xl ${
+                    review.user_tier === 'premium' ? 'bg-yellow-50/40 border-yellow-300 shadow-[0_0_10px_rgba(255,215,0,0.2)]' : ''
+                  }`}
+                >
                   <div className="flex items-start space-x-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                      <User className="w-4 h-4 text-gray-500" />
-                    </div>
+                    {review.user_tier === 'premium' ? (
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-300 via-yellow-400 to-yellow-500 shadow-inner flex items-center justify-center border border-yellow-600">
+                        <User className="w-4 h-4 text-white" />
+                      </div>
+                      ) : (
+                      <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                        <User className="w-4 h-4 text-gray-500" />
+                      </div>
+                    )}
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center space-x-2">
-                          <span className="text-sm font-medium text-tambii-dark">
+                          <span className={review.user_tier === 'premium' ? "text-sm font-semibold text-yellow-700" : "text-sm font-medium text-tambii-dark"}>
                             {review.user_id === user?.id ? "You" : (review.author ?? `User ${idx + 1}`)}
                           </span>
                           <RatingStars rating={review.rating} />
-                          <span className="text-xs text-gray-500">{new Date(review.created_at).toLocaleDateString()}</span>
+                          <span className={review.user_tier === 'premium' ? 'text-xs text-yellow-600' : 'text-xs text-gray-500'}>
+                            {new Date(review.created_at).toLocaleDateString()}
+                          </span>
                         </div>
                         {review.user_id === user?.id && (
                           <Button
@@ -372,7 +407,7 @@ const SpotDetail = () => {
                         )}
                       </div>
                       {review.comment && (
-                        <p className="text-sm text-gray-700 mb-2">{review.comment}</p>
+                        <p className="text-sm text-gray-800 italic mb-2">{review.comment}</p>
                       )}
                       {review.media_attachments && review.media_attachments.length > 0 && (
                         <ReviewMediaGallery mediaAttachments={review.media_attachments} />

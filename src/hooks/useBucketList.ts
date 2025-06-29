@@ -4,10 +4,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { SpotData } from '@/types/spot';
 import { toast } from '@/hooks/use-toast';
 
+const MAX_SPOT_BUCKETLIST_FREE_USER = 5;
+
 export const useBucketList = () => {
   const [bucketList, setBucketList] = useState<SpotData[]>([]);
   const [loading, setLoading] = useState(false);
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
 
   const fetchBucketList = async () => {
     if (!user) return;
@@ -28,7 +30,8 @@ export const useBucketList = () => {
             average_rating,
             review_count,
             author,
-            coordinates
+            coordinates,
+            user_tier
           )
         `)
         .eq('user_id', user.id);
@@ -60,6 +63,16 @@ export const useBucketList = () => {
 
   const addToBucketList = async (spot: SpotData) => {
     if (!user) return;
+
+    // PREMIUM USER
+    if(bucketList.length + 1 > MAX_SPOT_BUCKETLIST_FREE_USER && userProfile.tier === "free") {
+      toast({
+        title: "Max Spot Reached!",
+        description: "Be part of the astig premium users to have unlimited saves!",
+        variant: "destructive"
+      });
+      return { error: "max_spot" };
+    }
 
     try {
       const { error } = await supabase

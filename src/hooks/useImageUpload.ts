@@ -1,12 +1,12 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import heic2any from 'heic2any';
 
 const MAX_FILE_SIZE = 5; //MB
+const MAX_FILE_SIZE_PREMIUM = 25; // MB
 
 export const useImageUpload = () => {
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
 
   const convertHeicToJpeg = async (file: File): Promise<File> => {
     if (file.type === 'image/heic' || file.name.toLowerCase().endsWith('.heic')) {
@@ -64,10 +64,13 @@ export const useImageUpload = () => {
       files.map(file => convertHeicToJpeg(file))
     );
 
-    const oversized = processedFiles.filter(file => file.size > MAX_FILE_SIZE * 1024 * 1024);
+    const oversized = processedFiles.filter(file => file.size > (userProfile.tier === "premium" ? MAX_FILE_SIZE_PREMIUM * 1024 * 1024 : MAX_FILE_SIZE * 1024 * 1024));
     if (oversized.length > 0) {
       const fileNames = oversized.map(file => `"${file.name}"`).join(', ');
-      throw new Error(`The following file(s) exceed the 5MB limit: ${fileNames}`);
+      if(userProfile.tier === "premium")
+        throw new Error(`The following file(s) exceed the ${MAX_FILE_SIZE_PREMIUM}MB limit: ${fileNames}`);
+      else
+        throw new Error(`The following file(s) exceed the ${MAX_FILE_SIZE}MB limit: ${fileNames}`);
     }
 
     const uploadPromises = processedFiles.map(file => uploadImage(file));

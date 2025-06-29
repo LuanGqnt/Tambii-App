@@ -8,7 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import InteractiveMap from "@/components/InteractiveMap";
 import BottomNavigation from '@/components/BottomNavigation';
 
-const MapView = ({ activeTab, setActiveTab, handleTabChange }) => {
+const MapView = ({ activeTab, handleTabChange }) => {
   const navigate = useNavigate();
   const { spots, loading } = useSpots();
   const { user, userProfile } = useAuth();

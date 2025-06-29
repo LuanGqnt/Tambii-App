@@ -4,6 +4,7 @@ export interface SpotData {
   name: string;
   location: string;
   coordinates: number[]; // [longitude, latitude]
+  user_tier: string;
   images: string[];
   description: string;
   tags: string[];

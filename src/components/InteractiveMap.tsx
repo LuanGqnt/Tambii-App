@@ -34,15 +34,21 @@ const InteractiveMap = ({ spots, onSpotClick }: InteractiveMapProps) => {
     spots.forEach((spot) => {
       if (spot.coordinates) {
         const el = document.createElement('div');
-        el.className = 'w-8 h-8 bg-tambii-dark rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform shadow-lg';
-        el.innerHTML = '<svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>';
+        
+        if(spot.user_tier === 'premium') {
+          el.className ='w-8 h-8 bg-yellow-400 border-2 border-yellow-600 rounded-full flex items-center justify-center shadow-md shadow-yellow-300/70 animate-pulse';
+          el.innerHTML = '<svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>';
+        } else {
+          el.className = 'w-8 h-8 bg-tambii-dark rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform shadow-lg';
+          el.innerHTML = '<svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>';
+        }
         
         el.addEventListener('click', () => {
           onSpotClick(spot.id);
         });
 
         const marker = new mapboxgl.Marker(el)
-          .setLngLat(spot.coordinates)
+          .setLngLat(spot.coordinates as [number, number])
           .addTo(map.current!);
 
         markers.current.push(marker);
@@ -63,19 +69,6 @@ const InteractiveMap = ({ spots, onSpotClick }: InteractiveMapProps) => {
     });
     
     hideAndShowMarkersBasedOnZoom();
-
-    // Fit map to show all markers
-    if (markers.current.length > 0) {
-      const coordinates = spots
-        .filter(spot => spot.coordinates)
-        .map(spot => spot.coordinates!);
-      
-      if (coordinates.length > 1) {
-        const bounds = new mapboxgl.LngLatBounds();
-        coordinates.forEach(coord => bounds.extend(coord));
-        map.current.fitBounds(bounds, { padding: 50 });
-      }
-    }
   };
 
   useEffect(() => {
